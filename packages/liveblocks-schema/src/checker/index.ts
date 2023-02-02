@@ -3,6 +3,7 @@ import type {
   Definition,
   Document,
   ObjectLiteralExpr,
+  ObjectTypeDef,
   Range,
   TypeName,
   TypeRef,
@@ -274,7 +275,35 @@ function checkDocument(doc: Document, context: Context): void {
   }
 }
 
-export function check(doc: Document, errorReporter: ErrorReporter): Document {
+export type CheckedDocument = {
+  /**
+   * The raw AST node.
+   */
+  // ast: Document;
+
+  // Extracted and validated information made available after doing a full
+  // semantic check on the document. The data here is derived from the AST
+  // node, but provided here directly in a way that's more accessible.
+
+  /**
+   * Direct access to the root "Storage" definition.
+   */
+  root: ObjectTypeDef;
+
+  // XXX Keep this?
+  // types: Map<string, TypeInfo>;
+
+  /**
+   * A map of bindings from user-defined type names to their respective
+   * definitions.
+   */
+  customTypes: Map<string, Definition>;
+};
+
+export function check(
+  doc: Document,
+  errorReporter: ErrorReporter
+): CheckedDocument {
   const context = new Context(errorReporter);
 
   // Check the entire tree
@@ -292,5 +321,12 @@ export function check(doc: Document, errorReporter: ErrorReporter): Document {
     throw new Error("There were errors");
   }
 
-  return doc;
+  return {
+    // ast: doc,
+    root: context.registeredTypes.get("Storage") as ObjectTypeDef,
+    customTypes: context.registeredTypes,
+
+    // XXX Keep this?
+    // types: context.registeredTypes,
+  };
 }
