@@ -5,10 +5,6 @@ import prettier from "prettier";
 const TYPEOF_CHECKS = new Set(["number", "string", "boolean"]);
 const BUILTIN_TYPES = new Set(["number", "string", "boolean"]);
 
-type CodeGenerationOptions = {
-  emitRuntimeChecks: boolean;
-};
-
 // e.g. "SomeNode" or "@SomeUnion"
 type BaseNodeRef =
   | {
@@ -230,6 +226,21 @@ function validate(grammar: Grammar) {
   );
 }
 
+function generateAssertParam(
+  fieldName: string, // actualKindValue
+  fieldRef: NodeRef, // expectedNode
+  currentContext: string
+): string {
+  return `assert(${generateTypeCheckCondition(
+    fieldRef,
+    fieldName
+  )}, \`Invalid value for "${fieldName}" arg in ${JSON.stringify(
+    currentContext
+  )} call.\\nExpected: ${serializeRef(
+    fieldRef
+  )}\\nGot:      \${JSON.stringify(${fieldName})}\`)`;
+}
+
 function generateTypeCheckCondition(
   expected: NodeRef,
   actualValue: string
@@ -335,12 +346,7 @@ function parseGrammarDefinition(path: string): Grammar {
   };
 }
 
-async function generateCode(
-  grammar: Grammar,
-  options?: CodeGenerationOptions
-): Promise<string> {
-  const emitRuntimeChecks = options?.emitRuntimeChecks ?? false;
-
+async function generateCode(grammar: Grammar): Promise<string> {
   // Will throw in case of errors
   validate(grammar);
 
@@ -352,15 +358,21 @@ async function generateCode(
     " * Instead, update the `ast.grammar` file, and re-run `npm run build-ast`",
     " */",
     "",
-    emitRuntimeChecks
-      ? `
-        function invariant(condition: boolean, errmsg: string): void {
-          if (condition) return;
-          throw new Error(errmsg);
-        }
-        `
-      : "",
-    "",
+    `
+    const DEBUG = process.env.NODE_ENV !== 'production';
+
+    function assert(condition: boolean, errmsg: string): asserts condition {
+      if (condition) return;
+      throw new Error(errmsg);
+    }
+
+    function assertRange(range: unknown, currentContext: string): asserts range is Range {
+      assert(
+        isRange(range),
+        \`Invalid value for range in "\${JSON.stringify(currentContext)}".\\nExpected: Range\\nGot: \${JSON.stringify(range)}\`
+      );
+    }
+    `,
   ];
 
   for (const union of grammar.unions) {
@@ -394,7 +406,7 @@ async function generateCode(
 
         export type Node = ${grammar.nodes.map((node) => node.name).join(" | ")}
 
-        export function isRange(thing: Range): thing is Range {
+        export function isRange(thing: unknown): thing is Range {
             return (
                 Array.isArray(thing)
                 && thing.length === 2
@@ -437,24 +449,10 @@ async function generateCode(
       ).map((field) => field.name)
     );
 
-    const argChecks = node.fields
-      .map((field) => {
-        return `invariant(${generateTypeCheckCondition(
-          field.ref,
-          field.name
-        )}, \`Invalid value for "${field.name}" arg in "${
-          node.name
-        }" call.\\nExpected: ${serializeRef(
-          field.ref
-        )}\\nGot:      \${JSON.stringify(${field.name})}\`)\n`;
-      })
-      .filter(Boolean);
-    argChecks.push(
-      `invariant(
-         isRange(range),
-         \`Invalid value for range in "${node.name}".\\nExpected: Range\\nGot: \${JSON.stringify(range)}\`
-       )`
+    const runtimeTypeChecks = node.fields.map((field) =>
+      generateAssertParam(field.name, field.ref, node.name)
     );
+    runtimeTypeChecks.push(`assertRange(range, ${JSON.stringify(node.name)})`);
 
     output.push(`
       export function ${lowercaseFirst(node.name)}(${[
@@ -467,7 +465,11 @@ async function generateCode(
       }),
       "range: Range = [0, 0]",
     ].join(", ")}): ${node.name} {
-                ${emitRuntimeChecks ? argChecks.join("\n") : ""}
+                ${
+                  runtimeTypeChecks.length > 0
+                    ? `DEBUG && (() => { ${runtimeTypeChecks.join("\n")} })()`
+                    : ""
+                }
                 return {
                     _kind: ${JSON.stringify(node.name)},
                     ${[...node.fields.map((field) => field.name), "range"].join(
@@ -552,13 +554,9 @@ function writeFile(contents: string, path: string) {
   }
 }
 
-export async function generateAST(
-  inpath: string,
-  outpath: string,
-  options?: CodeGenerationOptions
-) {
+export async function generateAST(inpath: string, outpath: string) {
   const grammar = parseGrammarDefinition(inpath);
-  const uglyCode = await generateCode(grammar, options);
+  const uglyCode = await generateCode(grammar);
 
   // Beautify it with prettier
   const config = await prettier.resolveConfig(outpath);
