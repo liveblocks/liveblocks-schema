@@ -9,18 +9,18 @@ type CodeGenerationOptions = {
   emitRuntimeChecks: boolean;
 };
 
-// e.g. "SomeNode" or "@SomeGroup"
+// e.g. "SomeNode" or "@SomeUnion"
 type BaseNodeRef =
   | {
       ref: "Node";
       name: string;
     }
   | {
-      ref: "NodeGroup";
+      ref: "NodeUnion";
       name: string;
     };
 
-// e.g. "SomeNode+" or "@SomeGroup*"
+// e.g. "SomeNode+" or "@SomeUnion*"
 type MultiNodeRef =
   | BaseNodeRef
   | {
@@ -29,7 +29,7 @@ type MultiNodeRef =
       min: 0 | 1;
     };
 
-// e.g. "SomeNode?" or "@SomeGroup*?"
+// e.g. "SomeNode?" or "@SomeUnion*?"
 type NodeRef =
   | MultiNodeRef
   | {
@@ -38,7 +38,7 @@ type NodeRef =
     };
 
 // e.g. ['FloatLiteral', 'IntLiteral', '@StringExpr']
-type NodeGroup = {
+type NodeUnion = {
   name: string;
   members: NodeRef[];
 };
@@ -61,8 +61,8 @@ type Grammar = {
   nodesByName: LUT<Node>;
   nodes: Node[]; // Sorted list of nodes
 
-  nodeGroupsByName: LUT<NodeGroup>;
-  nodeGroups: NodeGroup[]; // Sorted list of node groups
+  unionsByName: LUT<NodeUnion>;
+  unions: NodeUnion[]; // Sorted list of node unions
 };
 
 function takeWhile<T>(items: T[], predicate: (item: T) => boolean): T[] {
@@ -99,7 +99,7 @@ function parseBaseNodeRef(spec: string): BaseNodeRef {
   invariant(match, `Invalid reference: "${spec}"`);
   if (spec.startsWith("@")) {
     return {
-      ref: "NodeGroup",
+      ref: "NodeUnion",
       name: spec.substring(1),
     };
   } else {
@@ -152,7 +152,7 @@ function serializeRef(ref: NodeRef): string {
     } else {
       return base + "*";
     }
-  } else if (ref.ref === "NodeGroup") {
+  } else if (ref.ref === "NodeUnion") {
     return "@" + ref.name;
   } else {
     return ref.name;
@@ -167,7 +167,7 @@ function getBareRef(ref: NodeRef): string {
     : ref.name;
 }
 
-function getBareRefTarget(ref: NodeRef): "Node" | "NodeGroup" {
+function getBareRefTarget(ref: NodeRef): "Node" | "NodeUnion" {
   return ref.ref === "Optional" || ref.ref === "List"
     ? getBareRefTarget(ref.of)
     : ref.ref;
@@ -185,15 +185,14 @@ function validate(grammar: Grammar) {
   // Keep track of which node names are referenced/used
   const referenced: Set<string> = new Set();
 
-  for (const nodeGroup of grammar.nodeGroups) {
-    for (const ref of nodeGroup.members) {
+  for (const nodeUnion of grammar.unions) {
+    for (const ref of nodeUnion.members) {
       const memberName = getBareRef(ref);
       referenced.add(memberName);
       invariant(
         grammar.nodesByName[memberName] ||
-          (nodeGroup.name !== memberName &&
-            !!grammar.nodeGroupsByName[memberName]),
-        `Member "${memberName}" of group "${nodeGroup.name}" is not defined in the grammar`
+          (nodeUnion.name !== memberName && !!grammar.unionsByName[memberName]),
+        `Member "${memberName}" of union "${nodeUnion.name}" is not defined in the grammar`
       );
     }
   }
@@ -208,7 +207,7 @@ function validate(grammar: Grammar) {
       referenced.add(bare);
       invariant(
         BUILTIN_TYPES.has(bare) ||
-          !!grammar.nodeGroupsByName[bare] ||
+          !!grammar.unionsByName[bare] ||
           !!grammar.nodesByName[bare],
         `Unknown node kind "${bare}" (in "${node.name}.${field.name}")`
       );
@@ -255,7 +254,7 @@ function generateTypeCheckCondition(
         "item"
       )})`
     );
-  } else if (expected.ref === "NodeGroup") {
+  } else if (expected.ref === "NodeUnion") {
     conditions.push(`is${expected.name}(${actualValue})`);
   } else if (TYPEOF_CHECKS.has(expected.name)) {
     conditions.push(
@@ -277,27 +276,27 @@ function parseGrammarDefinition(path: string): Grammar {
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"));
 
-  const nodeGroupsByName: LUT<NodeGroup> = {};
+  const unionsByName: LUT<NodeUnion> = {};
   const nodesByName: LUT<Node> = {};
 
-  let currGroup: NodeRef[] | void;
+  let currUnion: NodeRef[] | void;
   let currNode: LUT<Field> | void;
 
   for (let line of lines) {
     if (line.endsWith(":")) {
       line = line.substring(0, line.length - 1).trim();
 
-      // NodeGroup or Node?
+      // NodeUnion or Node?
       if (line.startsWith("@")) {
-        currGroup = [];
+        currUnion = [];
         currNode = undefined;
-        nodeGroupsByName[line.substring(1)] = {
+        unionsByName[line.substring(1)] = {
           name: line.substring(1),
-          members: currGroup,
+          members: currUnion,
         };
       } else {
         currNode = {};
-        currGroup = undefined;
+        currUnion = undefined;
         nodesByName[line] = {
           name: line,
           fieldsByName: currNode,
@@ -308,12 +307,12 @@ function parseGrammarDefinition(path: string): Grammar {
     }
 
     if (line.startsWith("|")) {
-      const group = line.substring(1).trim();
-      invariant(currGroup, "Expect a curr node group");
-      currGroup.push(parseBaseNodeRef(group));
+      const union = line.substring(1).trim();
+      invariant(currUnion, "Expect a current union");
+      currUnion.push(parseBaseNodeRef(union));
     } else {
       const [name, spec] = line.split(/\s+/);
-      invariant(currNode, "Expect a curr node");
+      invariant(currNode, "Expect a current node");
       currNode[name] = { name, ref: parseSpec(spec) };
     }
   }
@@ -329,10 +328,10 @@ function parseGrammarDefinition(path: string): Grammar {
       .sort()
       .map((name) => nodesByName[name]),
 
-    nodeGroupsByName,
-    nodeGroups: Object.keys(nodeGroupsByName)
+    unionsByName: unionsByName,
+    unions: Object.keys(unionsByName)
       .sort()
-      .map((name) => nodeGroupsByName[name]),
+      .map((name) => unionsByName[name]),
   };
 }
 
@@ -364,18 +363,16 @@ async function generateCode(
     "",
   ];
 
-  for (const nodeGroup of grammar.nodeGroups) {
-    const [subNodes, subGroups] = partition(
-      nodeGroup.members,
+  for (const union of grammar.unions) {
+    const [subNodes, subUnions] = partition(
+      union.members,
       (ref) => getBareRefTarget(ref) === "Node"
     );
     const conditions = subNodes
       .map((ref) => `node._kind === ${JSON.stringify(getBareRef(ref))}`)
-      .concat(subGroups.map((ref) => `is${getBareRef(ref)}(node)`));
+      .concat(subUnions.map((ref) => `is${getBareRef(ref)}(node)`));
     output.push(`
-          export function is${nodeGroup.name}(node: Node): node is ${
-      nodeGroup.name
-    } {
+          export function is${union.name}(node: Node): node is ${union.name} {
             return (
               ${conditions.join(" || ")}
             )
@@ -383,10 +380,10 @@ async function generateCode(
         `);
   }
 
-  for (const nodeGroup of grammar.nodeGroups) {
+  for (const union of grammar.unions) {
     output.push(`
-            export type ${nodeGroup.name} =
-                ${nodeGroup.members
+            export type ${union.name} =
+                ${union.members
                   .map((member) => `${getBareRef(member)}`)
                   .join(" | ")};
             `);
@@ -509,7 +506,7 @@ async function generateCode(
     for (const field of fields) {
       switch (field.ref.ref) {
         case "Node":
-        case "NodeGroup":
+        case "NodeUnion":
           output.push(`  visit(node.${field.name}, visitor, context);`);
           break;
 
