@@ -45,11 +45,8 @@ export function isLiveTypeExpr(node: Node): node is LiveTypeExpr {
 }
 
 export function isTypeExpr(node: Node): node is TypeExpr {
-  return node._kind === "ObjectLiteralExpr" || isTypeRef(node);
-}
-
-export function isTypeRef(node: Node): node is TypeRef {
   return (
+    node._kind === "ObjectLiteralExpr" ||
     node._kind === "CustomTypeRef" ||
     isBuiltInScalarType(node) ||
     isLiveTypeExpr(node)
@@ -64,9 +61,11 @@ export type Definition = ObjectTypeDef;
 
 export type LiveTypeExpr = LiveObjectTypeExpr;
 
-export type TypeExpr = ObjectLiteralExpr | TypeRef;
-
-export type TypeRef = BuiltInScalarType | LiveTypeExpr | CustomTypeRef;
+export type TypeExpr =
+  | BuiltInScalarType
+  | LiveTypeExpr
+  | ObjectLiteralExpr
+  | CustomTypeRef;
 
 export type Range = [number, number];
 

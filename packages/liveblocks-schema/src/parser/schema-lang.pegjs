@@ -158,9 +158,11 @@ LiveObjectKeyword
 
 
 TypeExpr
-  // = Literal
   = ObjectLiteralExpr
-  / TypeRef
+  / BuiltInScalarType
+  / LiveTypeExpr
+  / CustomTypeRef
+  // / Literal
 
 
 TypeExprList
@@ -169,12 +171,6 @@ TypeExprList
            { return type } )*
     COMMA?
     { return [first, ...rest] }
-
-
-TypeRef
-  = BuiltInScalarType
-  / LiveTypeExpr
-  / CustomTypeRef
 
 
 BuiltInScalarType

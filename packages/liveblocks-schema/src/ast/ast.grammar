@@ -29,20 +29,16 @@
 
 
 @LiveTypeExpr:
-    # | LiveListTypeRef
-    # | LiveMapTypeRef
+    # | LiveListTypeExpr
+    # | LiveMapTypeExpr
     | LiveObjectTypeExpr
 
 
 @TypeExpr:
     # | @Literal
-    | ObjectLiteralExpr
-    | @TypeRef
-
-
-@TypeRef:
     | @BuiltInScalarType
     | @LiveTypeExpr
+    | ObjectLiteralExpr
     | CustomTypeRef
 
 
