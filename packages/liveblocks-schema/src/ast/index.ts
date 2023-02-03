@@ -47,7 +47,7 @@ export function isLiveTypeExpr(node: Node): node is LiveTypeExpr {
 export function isTypeExpr(node: Node): node is TypeExpr {
   return (
     node._kind === "ObjectLiteralExpr" ||
-    node._kind === "CustomTypeRef" ||
+    node._kind === "TypeRef" ||
     isBuiltInScalarType(node) ||
     isLiveTypeExpr(node)
   );
@@ -65,12 +65,11 @@ export type TypeExpr =
   | BuiltInScalarType
   | LiveTypeExpr
   | ObjectLiteralExpr
-  | CustomTypeRef;
+  | TypeRef;
 
 export type Range = [number, number];
 
 export type Node =
-  | CustomTypeRef
   | Document
   | FieldDef
   | FloatKeyword
@@ -80,7 +79,8 @@ export type Node =
   | LiveObjectTypeExpr
   | ObjectLiteralExpr
   | ObjectTypeDef
-  | StringKeyword;
+  | StringKeyword
+  | TypeRef;
 
 export function isRange(thing: unknown): thing is Range {
   return (
@@ -93,7 +93,6 @@ export function isRange(thing: unknown): thing is Range {
 
 export function isNode(node: Node): node is Node {
   return (
-    node._kind === "CustomTypeRef" ||
     node._kind === "Document" ||
     node._kind === "FieldDef" ||
     node._kind === "FloatKeyword" ||
@@ -103,15 +102,10 @@ export function isNode(node: Node): node is Node {
     node._kind === "LiveObjectTypeExpr" ||
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "ObjectTypeDef" ||
-    node._kind === "StringKeyword"
+    node._kind === "StringKeyword" ||
+    node._kind === "TypeRef"
   );
 }
-
-export type CustomTypeRef = {
-  _kind: "CustomTypeRef";
-  name: Identifier;
-  range: Range;
-};
 
 export type Document = {
   _kind: "Document";
@@ -154,7 +148,7 @@ export type LineComment = {
 
 export type LiveObjectTypeExpr = {
   _kind: "LiveObjectTypeExpr";
-  of: CustomTypeRef;
+  of: TypeRef;
   range: Range;
 };
 
@@ -177,26 +171,11 @@ export type StringKeyword = {
   range: Range;
 };
 
-export function customTypeRef(
-  name: Identifier,
-  range: Range = [0, 0]
-): CustomTypeRef {
-  DEBUG &&
-    (() => {
-      assert(
-        name._kind === "Identifier",
-        `Invalid value for "name" arg in "CustomTypeRef" call.\nExpected: Identifier\nGot:      ${JSON.stringify(
-          name
-        )}`
-      );
-      assertRange(range, "CustomTypeRef");
-    })();
-  return {
-    _kind: "CustomTypeRef",
-    name,
-    range,
-  };
-}
+export type TypeRef = {
+  _kind: "TypeRef";
+  name: Identifier;
+  range: Range;
+};
 
 export function document(
   definitions: Definition[],
@@ -347,14 +326,14 @@ export function lineComment(text: string, range: Range = [0, 0]): LineComment {
 }
 
 export function liveObjectTypeExpr(
-  of: CustomTypeRef,
+  of: TypeRef,
   range: Range = [0, 0]
 ): LiveObjectTypeExpr {
   DEBUG &&
     (() => {
       assert(
-        of._kind === "CustomTypeRef",
-        `Invalid value for "of" arg in "LiveObjectTypeExpr" call.\nExpected: CustomTypeRef\nGot:      ${JSON.stringify(
+        of._kind === "TypeRef",
+        `Invalid value for "of" arg in "LiveObjectTypeExpr" call.\nExpected: TypeRef\nGot:      ${JSON.stringify(
           of
         )}`
       );
@@ -439,8 +418,25 @@ export function stringKeyword(
   };
 }
 
+export function typeRef(name: Identifier, range: Range = [0, 0]): TypeRef {
+  DEBUG &&
+    (() => {
+      assert(
+        name._kind === "Identifier",
+        `Invalid value for "name" arg in "TypeRef" call.\nExpected: Identifier\nGot:      ${JSON.stringify(
+          name
+        )}`
+      );
+      assertRange(range, "TypeRef");
+    })();
+  return {
+    _kind: "TypeRef",
+    name,
+    range,
+  };
+}
+
 interface Visitor<TContext> {
-  CustomTypeRef?(node: CustomTypeRef, context: TContext): void;
   Document?(node: Document, context: TContext): void;
   FieldDef?(node: FieldDef, context: TContext): void;
   FloatKeyword?(node: FloatKeyword, context: TContext): void;
@@ -451,6 +447,7 @@ interface Visitor<TContext> {
   ObjectLiteralExpr?(node: ObjectLiteralExpr, context: TContext): void;
   ObjectTypeDef?(node: ObjectTypeDef, context: TContext): void;
   StringKeyword?(node: StringKeyword, context: TContext): void;
+  TypeRef?(node: TypeRef, context: TContext): void;
 }
 
 export function visit<TNode extends Node>(
@@ -468,11 +465,6 @@ export function visit<TNode extends Node, TContext>(
   context?: TContext
 ): TNode {
   switch (node._kind) {
-    case "CustomTypeRef":
-      visitor.CustomTypeRef?.(node, context);
-      visit(node.name, visitor, context);
-      break;
-
     case "Document":
       visitor.Document?.(node, context);
       node.definitions.forEach((d) => visit(d, visitor, context));
@@ -519,6 +511,11 @@ export function visit<TNode extends Node, TContext>(
 
     case "StringKeyword":
       visitor.StringKeyword?.(node, context);
+      break;
+
+    case "TypeRef":
+      visitor.TypeRef?.(node, context);
+      visit(node.name, visitor, context);
       break;
   }
 

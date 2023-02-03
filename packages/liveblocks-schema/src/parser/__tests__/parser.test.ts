@@ -34,9 +34,7 @@ describe("documents", () => {
             ast.fieldDef(
               ast.identifier("mycircle"),
               true,
-              ast.liveObjectTypeExpr(
-                ast.customTypeRef(ast.identifier("Circle"))
-              )
+              ast.liveObjectTypeExpr(ast.typeRef(ast.identifier("Circle")))
             ),
           ])
         ),

@@ -280,7 +280,7 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c41 = function(): any { return null };
   const peg$c42 = function(first: any, type: any): any { return type };
   const peg$c43 = function(of: any): any { return ast.liveObjectTypeExpr(of, rng()) };
-  const peg$c44 = function(name: any): any { return ast.customTypeRef(name, rng()) };
+  const peg$c44 = function(name: any): any { return ast.typeRef(name, rng()) };
   const peg$c45 = peg$otherExpectation("end of keyword");
   const peg$c46 = peg$otherExpectation("keyword \"type\"");
   const peg$c47 = "type";
@@ -1464,7 +1464,7 @@ function peg$parse(input: string, options?: IParseOptions) {
       if (s0 as any === peg$FAILED) {
         s0 = peg$parseLiveObjectTypeExpr();
         if (s0 as any === peg$FAILED) {
-          s0 = peg$parseCustomTypeRef();
+          s0 = peg$parseTypeRef();
         }
       }
     }
@@ -1594,7 +1594,7 @@ function peg$parse(input: string, options?: IParseOptions) {
     if (s1 as any !== peg$FAILED) {
       s2 = peg$parseLT();
       if (s2 as any !== peg$FAILED) {
-        s3 = peg$parseCustomTypeRef();
+        s3 = peg$parseTypeRef();
         if (s3 as any !== peg$FAILED) {
           s4 = peg$parseGT();
           if (s4 as any !== peg$FAILED) {
@@ -1623,7 +1623,7 @@ function peg$parse(input: string, options?: IParseOptions) {
     return s0;
   }
 
-  function peg$parseCustomTypeRef(): any {
+  function peg$parseTypeRef(): any {
     let s0, s1;
 
     const key = peg$currPos * 38 + 24;

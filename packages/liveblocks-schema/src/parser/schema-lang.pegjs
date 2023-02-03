@@ -161,7 +161,7 @@ TypeExpr
   = ObjectLiteralExpr
   / BuiltInScalarType
   / LiveTypeExpr
-  / CustomTypeRef
+  / TypeRef
   // / Literal
 
 
@@ -184,13 +184,13 @@ LiveTypeExpr
 
 
 LiveObjectTypeExpr
-  = LiveObjectKeyword LT of:CustomTypeRef GT
+  = LiveObjectKeyword LT of:TypeRef GT
     { return ast.liveObjectTypeExpr(of, rng()) }
 
 
-CustomTypeRef
+TypeRef
   = name:Identifier
-    { return ast.customTypeRef(name, rng()) }
+    { return ast.typeRef(name, rng()) }
 
 
 // Literal

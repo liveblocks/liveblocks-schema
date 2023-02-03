@@ -39,10 +39,12 @@
     | @BuiltInScalarType
     | @LiveTypeExpr
     | ObjectLiteralExpr
-    | CustomTypeRef
+    | TypeRef
 
 
-CustomTypeRef:
+# Reference to a custom, user-defined, type. Not a built-in, not
+# a "LiveObject". Things like "Circle", "BlogPost", etc.
+TypeRef:
     name  Identifier
 
 
@@ -67,7 +69,7 @@ LineComment:
 
 # e.g. "LiveObject<Shape>"
 LiveObjectTypeExpr:
-    of  CustomTypeRef
+    of  TypeRef
 
 
 # e.g. { cx: Number; cy: Number; r: Float }

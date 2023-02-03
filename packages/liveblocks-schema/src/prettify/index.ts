@@ -46,7 +46,7 @@ export function prettify(node: Node): string {
     case "Identifier":
       return node.name;
 
-    case "CustomTypeRef":
+    case "TypeRef":
       return prettify(node.name);
 
     case "FieldDef":

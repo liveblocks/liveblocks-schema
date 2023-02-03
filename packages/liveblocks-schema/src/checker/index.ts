@@ -1,6 +1,6 @@
 import didyoumean from "didyoumean";
 import type {
-  CustomTypeRef,
+  TypeRef,
   Definition,
   Document,
   LiveObjectTypeExpr,
@@ -14,7 +14,7 @@ import type { ErrorReporter } from "../lib/error-reporting";
 class Context {
   errorReporter: ErrorReporter;
 
-  // A registry of custom user-defined types by their identifier names
+  // A registry of user-defined types by their identifier names
   registeredTypes: Map<string, Definition>;
 
   constructor(errorReporter: ErrorReporter) {
@@ -98,7 +98,7 @@ function checkLiveObjectTypeExpr(
   }
 }
 
-function checkCustomTypeRef(node: CustomTypeRef, context: Context): void {
+function checkTypeRef(node: TypeRef, context: Context): void {
   const typeDef = context.registeredTypes.get(node.name.name);
   if (typeDef === undefined) {
     const suggestion = didyoumean(
@@ -183,10 +183,10 @@ export type CheckedDocument = {
   root: ObjectTypeDef;
 
   /**
-   * Look up the Definition of a custom (user-defined) type by a Reference to
-   * it. This lookup is guaranteed to exist in the semantic check phase.
+   * Look up the Definition of a user-defined type by a Reference to it. This
+   * lookup is guaranteed to exist in the semantic check phase.
    */
-  getDefinition(ref: CustomTypeRef): Definition;
+  getDefinition(ref: TypeRef): Definition;
 };
 
 export function check(
@@ -202,7 +202,7 @@ export function check(
       Document: checkDocument,
       ObjectLiteralExpr: checkObjectLiteralExpr,
       LiveObjectTypeExpr: checkLiveObjectTypeExpr,
-      CustomTypeRef: checkCustomTypeRef,
+      TypeRef: checkTypeRef,
     },
     context
   );
@@ -217,7 +217,7 @@ export function check(
     // types: context.registeredTypes,
 
     root: context.registeredTypes.get("Storage") as ObjectTypeDef,
-    getDefinition(ref: CustomTypeRef): Definition {
+    getDefinition(ref: TypeRef): Definition {
       const def = context.registeredTypes.get(ref.name.name);
       if (def === undefined) {
         throw new Error(`Unknown type name "${ref.name.name}"`);
