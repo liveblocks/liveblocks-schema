@@ -2,19 +2,16 @@
   "name": "@liveblocks/schema-monorepo",
   "private": true,
   "workspaces": [
+    "shared/*",
     "packages/*"
   ],
   "scripts": {
     "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.51.0",
-    "@typescript-eslint/parser": "^5.51.0",
-    "eslint": "^8.33.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
     "prettier": "^2.8.3",
     "tsup": "^6.5.0",
     "turbo": "^1.7.3",
