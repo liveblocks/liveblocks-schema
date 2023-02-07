@@ -1,7 +1,8 @@
-import * as ast from "../../ast";
 import * as fc from "fast-check";
-import { expectDocument } from "./helpers";
+
+import * as ast from "../../ast";
 import { parseDocument as parse } from "..";
+import { expectDocument } from "./helpers";
 
 describe("syntactic parser", () => {
   it("fails on all non-valid inputs", () => {
@@ -11,7 +12,10 @@ describe("syntactic parser", () => {
         fc.anything(),
 
         (arg1, arg2) => {
-          expect(() => (parse as any)(arg1, arg2)).toThrow();
+          expect(() =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (parse as any)(arg1, arg2)
+          ).toThrow();
         }
       )
     );
