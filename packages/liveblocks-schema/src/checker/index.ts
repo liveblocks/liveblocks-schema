@@ -12,6 +12,10 @@ import type {
 import { visit } from "../ast";
 import type { ErrorReporter } from "../lib/error-reporting";
 
+function quote(value: string): string {
+  return JSON.stringify(value);
+}
+
 class Context {
   errorReporter: ErrorReporter;
 
@@ -71,7 +75,7 @@ function checkObjectLiteralExpr(
 ): void {
   for (const [first, second] of dupes(obj.fields, (f) => f.name.name)) {
     context.report(
-      `A field named ${JSON.stringify(
+      `A field named ${quote(
         first.name.name
       )} is defined multiple times (on line ${context.lineno(
         first.name.range
@@ -105,13 +109,13 @@ function checkTypeRef(node: TypeRef, context: Context): void {
     const suggestion = didyoumean(
       node.name.name,
       Array.from(context.registeredTypes.keys())
-    );
+    ) as string;
 
     context.report(
-      `Unknown type ${JSON.stringify(node.name)}`,
+      `Unknown type ${quote(node.name.name)}`,
       [
-        `I didn't understand what ${JSON.stringify(node.name)} refers to.`,
-        suggestion ? `Did you mean ${JSON.stringify(suggestion)}?` : null,
+        `I didn't understand what ${quote(node.name.name)} refers to.`,
+        suggestion ? `Did you mean ${quote(suggestion)}?` : null,
       ],
       node.range
     );
@@ -132,7 +136,7 @@ function checkDocument(doc: Document, context: Context): void {
     const existing = context.registeredTypes.get(name);
     if (existing !== undefined) {
       context.report(
-        `A type named ${JSON.stringify(
+        `A type named ${quote(
           name
         )} is defined multiple times (on line ${context.lineno(
           existing.name.range
