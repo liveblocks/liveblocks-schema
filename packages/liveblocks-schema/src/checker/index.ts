@@ -17,6 +17,7 @@ function quote(value: string): string {
   return JSON.stringify(value);
 }
 
+// XXX Can we _derive_ this list from the grammar instead?
 const BUILTINS = ["String", "Int", "Float", "Boolean"];
 
 class Context {
@@ -106,6 +107,7 @@ function checkLiveObjectTypeExpr(
   }
 }
 
+// XXX This check really belongs to TypeName nodes, not Identifiers
 function checkIdentifier(node: Identifier, context: Context): void {
   if (/^live/i.test(node.name)) {
     context.report(

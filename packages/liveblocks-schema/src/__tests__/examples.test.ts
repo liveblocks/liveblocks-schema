@@ -81,6 +81,7 @@ describe("examples", () => {
           // Should fail during semantic checking phase. Either this is
           // a regression in the type checker, or we'll need to move this
           // example file to the "good/" directory.
+          // XXX Rename to SchemaError
           expect(() => parseAndCheck(input)).toThrow();
         })
       );
@@ -94,7 +95,8 @@ describe("examples", () => {
           const input = await readExample(f);
 
           // Parsing should not even work syntactically
-          expect(() => parseOnly(input)).toThrow();
+          // XXX Rename to SyntaxError
+          expect(() => parseOnly(input)).toThrow(/Parse error/);
         });
       });
   });
