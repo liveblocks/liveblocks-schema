@@ -190,7 +190,7 @@ EOK "end of keyword"
 
 
 TYPE "keyword \"type\""
-  = _ @$'type' EOK
+  = _ @$'type' EOK __
 
 
 LCURLY     = __ @$'{' __
