@@ -133,8 +133,7 @@ FloatKeyword
 
 
 LiveObjectKeyword
-  = _ 'LiveObject' EOK
-    { return null }
+  = _ @$'LiveObject' EOK
 
 
 TypeExpr
@@ -161,7 +160,7 @@ LiveObjectTypeExpr
 
 
 TypeRef
-  = name:Identifier
+  = !LiveObjectKeyword name:Identifier
     { return ast.typeRef(name, rng()) }
 
 
