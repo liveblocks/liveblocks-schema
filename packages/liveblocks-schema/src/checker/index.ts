@@ -3,6 +3,7 @@ import didyoumean from "didyoumean";
 import type {
   Definition,
   Document,
+  Identifier,
   LiveObjectTypeExpr,
   ObjectLiteralExpr,
   ObjectTypeDef,
@@ -15,6 +16,8 @@ import type { ErrorReporter } from "../lib/error-reporting";
 function quote(value: string): string {
   return JSON.stringify(value);
 }
+
+const BUILTINS = ["String", "Int", "Float", "Boolean"];
 
 class Context {
   errorReporter: ErrorReporter;
@@ -100,6 +103,22 @@ function checkLiveObjectTypeExpr(
       node.of.range
     );
     return undefined;
+  }
+}
+
+function checkIdentifier(node: Identifier, context: Context): void {
+  if (/^live/i.test(node.name)) {
+    context.report(
+      'Type names starting with "Live" are reserved for future use.',
+      [],
+      node.range
+    );
+  } else if (BUILTINS.includes(node.name)) {
+    context.report(
+      `Type name ${quote(node.name)} is a built-in type and cannot be reserved`,
+      [],
+      node.range
+    );
   }
 }
 
@@ -205,8 +224,9 @@ export function check(
     doc,
     {
       Document: checkDocument,
-      ObjectLiteralExpr: checkObjectLiteralExpr,
+      Identifier: checkIdentifier,
       LiveObjectTypeExpr: checkLiveObjectTypeExpr,
+      ObjectLiteralExpr: checkObjectLiteralExpr,
       TypeRef: checkTypeRef,
     },
     context
