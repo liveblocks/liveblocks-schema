@@ -17,8 +17,9 @@ function quote(value: string): string {
   return JSON.stringify(value);
 }
 
-// XXX Can we _derive_ this list from the grammar instead?
-const BUILTINS = ["String", "Int", "Float", "Boolean"];
+// XXX Can we _derive_ the builtins in this list from the grammar instead?
+const BUILTIN_KEYWORDS = /^(String|Int|Float|Boolean)$/i;
+const RESERVED_NAMES = /^(Presence$|Live)/i;
 
 class Context {
   errorReporter: ErrorReporter;
@@ -109,15 +110,15 @@ function checkLiveObjectTypeExpr(
 
 // XXX This check really belongs to TypeName nodes, not Identifiers
 function checkIdentifier(node: Identifier, context: Context): void {
-  if (/^live/i.test(node.name)) {
+  if (BUILTIN_KEYWORDS.test(node.name)) {
     context.report(
-      'Type names starting with "Live" are reserved for future use.',
+      `Type name ${quote(node.name)} is a built-in type`,
       [],
       node.range
     );
-  } else if (BUILTINS.includes(node.name)) {
+  } else if (RESERVED_NAMES.test(node.name)) {
     context.report(
-      `Type name ${quote(node.name)} is a built-in type and cannot be reserved`,
+      `Type name ${quote(node.name)} is reserved for future use`,
       [],
       node.range
     );
