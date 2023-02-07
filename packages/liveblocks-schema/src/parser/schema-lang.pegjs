@@ -66,7 +66,7 @@ Comment
 
 
 LineComment
-  = $( '//' / '#' ) text:$( [^\n] )* &[\n]
+  = $( ( '//' / '#' ) [^\n]* )
 
 
 LOWER_CHAR = [a-z]
