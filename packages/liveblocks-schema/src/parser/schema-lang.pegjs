@@ -99,8 +99,8 @@ ObjectTypeDef
 
 
 ObjectLiteralExpr
-  = LCURLY fields:FieldDefList RCURLY
-    { return ast.objectLiteralExpr(fields, rng()) }
+  = LCURLY fields:FieldDefList? RCURLY
+    { return ast.objectLiteralExpr(fields ?? [], rng()) }
 
 
 FieldDefList

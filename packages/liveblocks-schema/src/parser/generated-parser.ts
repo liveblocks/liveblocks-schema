@@ -242,7 +242,7 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c22 = function(first: any, x: any): any { return x };
   const peg$c23 = function(first: any, rest: any): any { return [first, ...rest] };
   const peg$c24 = function(name: any, obj: any): any { return ast.objectTypeDef(name, obj, rng()) };
-  const peg$c25 = function(fields: any): any { return ast.objectLiteralExpr(fields, rng()) };
+  const peg$c25 = function(fields: any): any { return ast.objectLiteralExpr(fields ?? [], rng()) };
   const peg$c26 = function(first: any, def: any): any { return def };
   const peg$c27 = function(name: any, question: any, type: any): any {
         const optional = question !== null;
@@ -1043,6 +1043,9 @@ function peg$parse(input: string, options?: IParseOptions) {
     s1 = peg$parseLCURLY();
     if (s1 as any !== peg$FAILED) {
       s2 = peg$parseFieldDefList();
+      if (s2 as any === peg$FAILED) {
+        s2 = null;
+      }
       if (s2 as any !== peg$FAILED) {
         s3 = peg$parseRCURLY();
         if (s3 as any !== peg$FAILED) {
