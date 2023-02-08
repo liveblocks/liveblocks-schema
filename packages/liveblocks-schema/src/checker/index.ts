@@ -11,7 +11,7 @@ import type {
   TypeExpr,
   TypeRef,
 } from "../ast";
-import { visit } from "../ast";
+import { isBuiltInScalarType, visit } from "../ast";
 import { assertNever } from "../lib/assert";
 import type { ErrorReporter } from "../lib/error-reporting";
 
@@ -157,13 +157,11 @@ function checkNoForbiddenRefs(
   context: Context,
   forbidden: Set<string>
 ): void {
-  switch (typeExpr._kind) {
-    case "StringKeyword":
-    case "IntKeyword":
-    case "FloatKeyword":
-      // Fine
-      break;
+  if (isBuiltInScalarType(typeExpr)) {
+    return;
+  }
 
+  switch (typeExpr._kind) {
     case "LiveObjectTypeExpr":
       checkNoForbiddenRefs(typeExpr.of, context, forbidden);
       break;
