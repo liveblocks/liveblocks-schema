@@ -19,10 +19,16 @@ function quote(value: string): string {
   return JSON.stringify(value);
 }
 
-// XXX Can we _derive_ the builtins in this list from the grammar instead?
 const TYPENAME_REGEX = /^[A-Z_]/;
-const BUILTIN_KEYWORDS = /^(String|Int|Float|Boolean)$/i;
-const RESERVED_NAMES = /^(Presence$|Live)/i;
+
+// TODO Ideally _derive_ this list of builtins directly from the grammar
+// instead somehow?
+const BUILTIN_KEYWORD_REGEX = /^(String|Int|Float|Boolean)$/i;
+
+/**
+ * Reserve these names for future use.
+ */
+const RESERVED_TYPENAMES_REGEX = /^Live|^(Presence|Array)$/i;
 
 class Context {
   errorReporter: ErrorReporter;
@@ -122,13 +128,13 @@ function checkTypeName(node: TypeName, context: Context): void {
 
   // Continue collecting more errors
 
-  if (BUILTIN_KEYWORDS.test(node.name)) {
+  if (BUILTIN_KEYWORD_REGEX.test(node.name)) {
     context.report(
       `Type name ${quote(node.name)} is a built-in type`,
       [],
       node.range
     );
-  } else if (RESERVED_NAMES.test(node.name)) {
+  } else if (RESERVED_TYPENAMES_REGEX.test(node.name)) {
     context.report(
       `Type name ${quote(node.name)} is reserved for future use`,
       [],
