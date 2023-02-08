@@ -141,6 +141,11 @@ FloatKeyword
     { return ast.floatKeyword() }
 
 
+BooleanKeyword
+  = _ 'Boolean' EOK
+    { return ast.booleanKeyword() }
+
+
 LiveObjectKeyword
   = _ @$'LiveObject' EOK
 
@@ -157,6 +162,7 @@ BuiltInScalarType
   = StringKeyword
   / IntKeyword
   / FloatKeyword
+  / BooleanKeyword
 
 
 LiveTypeExpr

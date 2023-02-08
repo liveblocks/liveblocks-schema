@@ -21,6 +21,9 @@ export function prettify(node: Node): string {
     case "Document":
       return node.definitions.map(prettify).join("\n\n");
 
+    case "BooleanKeyword":
+      return "Boolean";
+
     case "StringKeyword":
       return "String";
 

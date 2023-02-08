@@ -1,5 +1,6 @@
 # 0.0.7
 
+- Add `Boolean` built-in scalar type
 - Fix: differentiate between Identifier and TypeName nodes
 - Fix: don't allow illegal ref cycles
 - Fix: type names must start with uppercase character (or `_`)

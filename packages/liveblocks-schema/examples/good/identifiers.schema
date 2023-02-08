@@ -6,9 +6,8 @@ type Storage {
   int: Int
   Float: Float
   float: Float
-  # XXX Uncomment when we support Booleans
-  # Boolean: Boolean
-  # boolean: Boolean
+  Boolean: Boolean
+  boolean: Boolean
   LiveObject: LiveObject<Obj>
   liveObject: LiveObject<Obj>
   Obj: Obj

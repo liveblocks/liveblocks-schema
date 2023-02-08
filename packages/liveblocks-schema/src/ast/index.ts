@@ -28,7 +28,8 @@ export function isBuiltInScalarType(node: Node): node is BuiltInScalarType {
   return (
     node._kind === "StringKeyword" ||
     node._kind === "IntKeyword" ||
-    node._kind === "FloatKeyword"
+    node._kind === "FloatKeyword" ||
+    node._kind === "BooleanKeyword"
   );
 }
 
@@ -49,7 +50,11 @@ export function isTypeExpr(node: Node): node is TypeExpr {
   );
 }
 
-export type BuiltInScalarType = StringKeyword | IntKeyword | FloatKeyword;
+export type BuiltInScalarType =
+  | StringKeyword
+  | IntKeyword
+  | FloatKeyword
+  | BooleanKeyword;
 
 export type Definition = ObjectTypeDef;
 
@@ -64,6 +69,7 @@ export type TypeExpr =
 export type Range = [number, number];
 
 export type Node =
+  | BooleanKeyword
   | Document
   | FieldDef
   | FloatKeyword
@@ -87,6 +93,7 @@ export function isRange(thing: unknown): thing is Range {
 
 export function isNode(node: Node): node is Node {
   return (
+    node._kind === "BooleanKeyword" ||
     node._kind === "Document" ||
     node._kind === "FieldDef" ||
     node._kind === "FloatKeyword" ||
@@ -100,6 +107,12 @@ export function isNode(node: Node): node is Node {
     node._kind === "TypeRef"
   );
 }
+
+export type BooleanKeyword = {
+  _kind: "BooleanKeyword";
+  dummy_: string | null;
+  range: Range;
+};
 
 export type Document = {
   _kind: "Document";
@@ -169,6 +182,27 @@ export type TypeRef = {
   name: TypeName;
   range: Range;
 };
+
+export function booleanKeyword(
+  dummy_: string | null = null,
+  range: Range = [0, 0]
+): BooleanKeyword {
+  DEBUG &&
+    (() => {
+      assert(
+        dummy_ === null || typeof dummy_ === "string",
+        `Invalid value for "dummy_" arg in "BooleanKeyword" call.\nExpected: string?\nGot:      ${JSON.stringify(
+          dummy_
+        )}`
+      );
+      assertRange(range, "BooleanKeyword");
+    })();
+  return {
+    _kind: "BooleanKeyword",
+    dummy_,
+    range,
+  };
+}
 
 export function document(
   definitions: Definition[],
@@ -420,6 +454,7 @@ export function typeRef(name: TypeName, range: Range = [0, 0]): TypeRef {
 }
 
 interface Visitor<TContext> {
+  BooleanKeyword?(node: BooleanKeyword, context: TContext): void;
   Document?(node: Document, context: TContext): void;
   FieldDef?(node: FieldDef, context: TContext): void;
   FloatKeyword?(node: FloatKeyword, context: TContext): void;
@@ -448,6 +483,10 @@ export function visit<TNode extends Node, TContext>(
   context?: TContext
 ): TNode {
   switch (node._kind) {
+    case "BooleanKeyword":
+      visitor.BooleanKeyword?.(node, context);
+      break;
+
     case "Document":
       visitor.Document?.(node, context);
       node.definitions.forEach((d) => visit(d, visitor, context));

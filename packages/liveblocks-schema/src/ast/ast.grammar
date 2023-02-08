@@ -10,6 +10,7 @@
     | StringKeyword
     | IntKeyword
     | FloatKeyword
+    | BooleanKeyword
 
 
 # A custom user-defined type definition
@@ -93,4 +94,8 @@ IntKeyword:
 
 
 FloatKeyword:
+    dummy_  string?
+
+
+BooleanKeyword:
     dummy_  string?
