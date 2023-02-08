@@ -1,6 +1,6 @@
 type Storage {
   myLive: MyLive
-  #       ^^^^^^ Should be rejected because not wrapped in a LiveObject
+  #       ^^^^^^ Should be wrapped in LiveObject
 }
 
 type Thing {

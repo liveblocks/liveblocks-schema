@@ -31,6 +31,15 @@ async function readExample(f: string): Promise<string> {
   return fs.promises.readFile(f, { encoding: "utf-8" });
 }
 
+function declareJestTest(filename: string) {
+  const basename = path.basename(filename);
+  return /\bskip\b/i.test(basename)
+    ? it.skip
+    : /\bfail\b/i.test(basename)
+    ? it.failing
+    : it;
+}
+
 describe("examples", () => {
   const exampleFiles: string[] = Array.from(
     readFiles(path.join(__dirname, "../../examples"))
@@ -49,7 +58,7 @@ describe("examples", () => {
     exampleFiles
       .filter((f) => f.includes("/good/"))
       .map((f) =>
-        it(path.basename(f), async () => {
+        declareJestTest(f)(path.basename(f), async () => {
           expect(parseAndCheck(await readExample(f)).root).toEqual({
             _kind: "ObjectTypeDef",
             name: {
@@ -68,7 +77,7 @@ describe("examples", () => {
     exampleFiles
       .filter((f) => f.includes("/bad-semantics/"))
       .map((f) =>
-        it(path.basename(f), async () => {
+        declareJestTest(f)(path.basename(f), async () => {
           const input = await readExample(f);
 
           // Parsing should work syntactically
@@ -91,7 +100,7 @@ describe("examples", () => {
     exampleFiles
       .filter((f) => f.includes("/bad-syntax/"))
       .map((f) => {
-        it(path.basename(f), async () => {
+        declareJestTest(f)(path.basename(f), async () => {
           const input = await readExample(f);
 
           // Parsing should not even work syntactically

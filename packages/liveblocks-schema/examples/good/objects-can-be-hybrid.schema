@@ -1,6 +1,6 @@
 type Storage {
-  thing: Thing
-  liveThing: LiveObject<Thing>
+  thing1: Thing
+  thing2: LiveObject<Thing>
 }
 
 type Thing {
