@@ -20,6 +20,7 @@ function quote(value: string): string {
 }
 
 // XXX Can we _derive_ the builtins in this list from the grammar instead?
+const TYPENAME_REGEX = /^[A-Z_]/;
 const BUILTIN_KEYWORDS = /^(String|Int|Float|Boolean)$/i;
 const RESERVED_NAMES = /^(Presence$|Live)/i;
 
@@ -111,6 +112,16 @@ function checkLiveObjectTypeExpr(
 }
 
 function checkTypeName(node: TypeName, context: Context): void {
+  if (!TYPENAME_REGEX.test(node.name)) {
+    context.report(
+      `Type names should start with an uppercase character`,
+      [],
+      node.range
+    );
+  }
+
+  // Continue collecting more errors
+
   if (BUILTIN_KEYWORDS.test(node.name)) {
     context.report(
       `Type name ${quote(node.name)} is a built-in type`,
@@ -145,11 +156,7 @@ function checkTypeRef(node: TypeRef, context: Context): void {
   }
 }
 
-// FIXME(nvie) Check that type definitions don't use reserved types names e.g. `type String { ... }`)
 // FIXME(nvie) Other examples: Boolean, LiveXxx, Regex, List, Email
-
-// FIXME(nvie) Check that lowercased type names are disallowed (e.g. `type henk { ... }`)
-//                                                                         ^ Must start with uppercase
 
 function checkNoForbiddenRefs(
   typeExpr: TypeExpr,
