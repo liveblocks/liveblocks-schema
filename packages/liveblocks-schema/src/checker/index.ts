@@ -114,7 +114,7 @@ function checkLiveObjectTypeExpr(
 function checkTypeName(node: TypeName, context: Context): void {
   if (!TYPENAME_REGEX.test(node.name)) {
     context.report(
-      `Type names should start with an uppercase character`,
+      "Type names should start with an uppercase character",
       [],
       node.range
     );
