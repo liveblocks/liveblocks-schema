@@ -1,0 +1,14 @@
+type Storage {
+  myLive: MyLive
+  #       ^^^^^^ Should be rejected because not wrapped in a LiveObject
+}
+
+type Thing {
+  name: String
+}
+
+type MyLive {
+  nested: LiveObject<Obj>
+}
+
+type Obj {}

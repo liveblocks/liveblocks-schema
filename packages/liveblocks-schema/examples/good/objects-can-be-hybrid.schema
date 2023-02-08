@@ -1,0 +1,8 @@
+type Storage {
+  thing: Thing
+  liveThing: LiveObject<Thing>
+}
+
+type Thing {
+  name: String
+}
