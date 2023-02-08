@@ -1,5 +1,7 @@
 # 0.0.7
 
+- Fix various bugs in the parser/checker
+- Massively improved unit test foundation
 - Don't retain comments as part of the AST (might be added back in later)
 - Fix for non-node envs (missing `process` global)
 
