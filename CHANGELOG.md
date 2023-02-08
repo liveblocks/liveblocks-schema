@@ -1,5 +1,6 @@
 # 0.0.7
 
+- Fix: don't allow illegal ref cycles
 - Fix various bugs in the parser/checker
 - Massively improved unit test foundation
 - Don't retain comments as part of the AST (might be added back in later)

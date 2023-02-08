@@ -8,9 +8,11 @@ import type {
   ObjectLiteralExpr,
   ObjectTypeDef,
   Range,
+  TypeExpr,
   TypeRef,
 } from "../ast";
 import { visit } from "../ast";
+import { assertNever } from "../lib/assert";
 import type { ErrorReporter } from "../lib/error-reporting";
 
 function quote(value: string): string {
@@ -150,6 +152,58 @@ function checkTypeRef(node: TypeRef, context: Context): void {
 // FIXME(nvie) Check that lowercased type names are disallowed (e.g. `type henk { ... }`)
 //                                                                         ^ Must start with uppercase
 
+function checkNoForbiddenRefs(
+  typeExpr: TypeExpr,
+  context: Context,
+  forbidden: Set<string>
+): void {
+  switch (typeExpr._kind) {
+    case "StringKeyword":
+    case "IntKeyword":
+    case "FloatKeyword":
+      // Fine
+      break;
+
+    case "LiveObjectTypeExpr":
+      checkNoForbiddenRefs(typeExpr.of, context, forbidden);
+      break;
+
+    case "ObjectLiteralExpr":
+      for (const field of typeExpr.fields) {
+        if (!field.optional) {
+          checkNoForbiddenRefs(field.type, context, forbidden);
+        }
+      }
+      break;
+
+    case "TypeRef": {
+      if (forbidden.has(typeExpr.name.name)) {
+        context.report(
+          `Cyclical reference detected: ${quote(typeExpr.name.name)}`,
+          [],
+          typeExpr.range
+        );
+      }
+
+      const def = context.registeredTypes.get(typeExpr.name.name);
+      if (def !== undefined) {
+        const s = new Set(forbidden);
+        s.add(typeExpr.name.name);
+        checkNoForbiddenRefs(def.obj, context, s);
+      }
+      break;
+    }
+
+    default:
+      return assertNever(typeExpr, "Unhandled case");
+  }
+}
+
+function checkObjectTypeDef(def: ObjectTypeDef, context: Context): void {
+  // Checks to make sure there are no self-references in object definitions
+  checkNoForbiddenRefs(def.obj, context, new Set([def.name.name]));
+}
+
 function checkDocument(doc: Document, context: Context): void {
   // Now, first add all definitions to the global registry
   for (const def of doc.definitions) {
@@ -230,6 +284,7 @@ export function check(
       Identifier: checkIdentifier,
       LiveObjectTypeExpr: checkLiveObjectTypeExpr,
       ObjectLiteralExpr: checkObjectLiteralExpr,
+      ObjectTypeDef: checkObjectTypeDef,
       TypeRef: checkTypeRef,
     },
     context

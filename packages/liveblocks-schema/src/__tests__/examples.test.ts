@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+
 import { parse as parseAndCheck } from "..";
 import { parseDocument as parseOnly } from "../parser";
 
