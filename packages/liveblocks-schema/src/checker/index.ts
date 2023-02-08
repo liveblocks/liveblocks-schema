@@ -3,12 +3,12 @@ import didyoumean from "didyoumean";
 import type {
   Definition,
   Document,
-  Identifier,
   LiveObjectTypeExpr,
   ObjectLiteralExpr,
   ObjectTypeDef,
   Range,
   TypeExpr,
+  TypeName,
   TypeRef,
 } from "../ast";
 import { isBuiltInScalarType, visit } from "../ast";
@@ -110,8 +110,7 @@ function checkLiveObjectTypeExpr(
   }
 }
 
-// XXX This check really belongs to TypeName nodes, not Identifiers
-function checkIdentifier(node: Identifier, context: Context): void {
+function checkTypeName(node: TypeName, context: Context): void {
   if (BUILTIN_KEYWORDS.test(node.name)) {
     context.report(
       `Type name ${quote(node.name)} is a built-in type`,
@@ -279,10 +278,10 @@ export function check(
     doc,
     {
       Document: checkDocument,
-      Identifier: checkIdentifier,
       LiveObjectTypeExpr: checkLiveObjectTypeExpr,
       ObjectLiteralExpr: checkObjectLiteralExpr,
       ObjectTypeDef: checkObjectTypeDef,
+      TypeName: checkTypeName,
       TypeRef: checkTypeRef,
     },
     context

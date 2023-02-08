@@ -73,6 +73,7 @@ export type Node =
   | ObjectLiteralExpr
   | ObjectTypeDef
   | StringKeyword
+  | TypeName
   | TypeRef;
 
 export function isRange(thing: unknown): thing is Range {
@@ -95,6 +96,7 @@ export function isNode(node: Node): node is Node {
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "ObjectTypeDef" ||
     node._kind === "StringKeyword" ||
+    node._kind === "TypeName" ||
     node._kind === "TypeRef"
   );
 }
@@ -145,7 +147,7 @@ export type ObjectLiteralExpr = {
 
 export type ObjectTypeDef = {
   _kind: "ObjectTypeDef";
-  name: Identifier;
+  name: TypeName;
   obj: ObjectLiteralExpr;
   range: Range;
 };
@@ -156,9 +158,15 @@ export type StringKeyword = {
   range: Range;
 };
 
+export type TypeName = {
+  _kind: "TypeName";
+  name: string;
+  range: Range;
+};
+
 export type TypeRef = {
   _kind: "TypeRef";
-  name: Identifier;
+  name: TypeName;
   range: Range;
 };
 
@@ -326,15 +334,15 @@ export function objectLiteralExpr(
 }
 
 export function objectTypeDef(
-  name: Identifier,
+  name: TypeName,
   obj: ObjectLiteralExpr,
   range: Range = [0, 0]
 ): ObjectTypeDef {
   DEBUG &&
     (() => {
       assert(
-        name._kind === "Identifier",
-        `Invalid value for "name" arg in "ObjectTypeDef" call.\nExpected: Identifier\nGot:      ${JSON.stringify(
+        name._kind === "TypeName",
+        `Invalid value for "name" arg in "ObjectTypeDef" call.\nExpected: TypeName\nGot:      ${JSON.stringify(
           name
         )}`
       );
@@ -375,12 +383,30 @@ export function stringKeyword(
   };
 }
 
-export function typeRef(name: Identifier, range: Range = [0, 0]): TypeRef {
+export function typeName(name: string, range: Range = [0, 0]): TypeName {
   DEBUG &&
     (() => {
       assert(
-        name._kind === "Identifier",
-        `Invalid value for "name" arg in "TypeRef" call.\nExpected: Identifier\nGot:      ${JSON.stringify(
+        typeof name === "string",
+        `Invalid value for "name" arg in "TypeName" call.\nExpected: string\nGot:      ${JSON.stringify(
+          name
+        )}`
+      );
+      assertRange(range, "TypeName");
+    })();
+  return {
+    _kind: "TypeName",
+    name,
+    range,
+  };
+}
+
+export function typeRef(name: TypeName, range: Range = [0, 0]): TypeRef {
+  DEBUG &&
+    (() => {
+      assert(
+        name._kind === "TypeName",
+        `Invalid value for "name" arg in "TypeRef" call.\nExpected: TypeName\nGot:      ${JSON.stringify(
           name
         )}`
       );
@@ -403,6 +429,7 @@ interface Visitor<TContext> {
   ObjectLiteralExpr?(node: ObjectLiteralExpr, context: TContext): void;
   ObjectTypeDef?(node: ObjectTypeDef, context: TContext): void;
   StringKeyword?(node: StringKeyword, context: TContext): void;
+  TypeName?(node: TypeName, context: TContext): void;
   TypeRef?(node: TypeRef, context: TContext): void;
 }
 
@@ -462,6 +489,10 @@ export function visit<TNode extends Node, TContext>(
 
     case "StringKeyword":
       visitor.StringKeyword?.(node, context);
+      break;
+
+    case "TypeName":
+      visitor.TypeName?.(node, context);
       break;
 
     case "TypeRef":

@@ -46,6 +46,9 @@ export function prettify(node: Node): string {
     case "Identifier":
       return node.name;
 
+    case "TypeName":
+      return node.name;
+
     case "TypeRef":
       return prettify(node.name);
 

@@ -33,6 +33,8 @@
     "StringKeywordList": "ast.StringKeyword[]",
     "TypeExpr": "ast.TypeExpr",
     "TypeExprList": "ast.TypeExpr[]",
+    "TypeName": "ast.TypeName",
+    "TypeNameList": "ast.TypeName[]",
     "TypeRef": "ast.TypeRef",
     "TypeRefList": "ast.TypeRef[]"
   }

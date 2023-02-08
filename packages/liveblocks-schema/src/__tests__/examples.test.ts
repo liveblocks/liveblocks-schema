@@ -63,7 +63,7 @@ describe("examples", () => {
           expect(parseAndCheck(await readExample(f)).root).toEqual({
             _kind: "ObjectTypeDef",
             name: {
-              _kind: "Identifier",
+              _kind: "TypeName",
               name: "Storage",
               range: expect.anything(),
             },
