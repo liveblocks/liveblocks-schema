@@ -71,19 +71,20 @@ LineComment
 
 LOWER_CHAR = [a-z]
 UPPER_CHAR = [A-Z]
+IDENTIFIER_PREFIX = [a-zA-Z_]
 WORD_CHAR = [a-zA-Z0-9_]
 
 
 // e.g. "x" or "y" -- used in field positions
 // Similar to TypeName, but there are different semantic validation rules that apply
-Identifier "identifier"
-  = name:$( WORD_CHAR+ ) !WORD_CHAR _
+Identifier "<identifier>"
+  = name:$( IDENTIFIER_PREFIX WORD_CHAR* ) !WORD_CHAR _
     { return ast.identifier(name, rng()) }
 
 
 // e.g. "Circle" or "Person" -- used in type positions
 // Similar to Identifier, but there are different semantic validation rules that apply
-TypeName "type name"
+TypeName "<type name>"
   = name:$( WORD_CHAR+ ) !WORD_CHAR _
     { return ast.typeName(name, rng()) }
 
