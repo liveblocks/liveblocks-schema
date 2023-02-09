@@ -1,4 +1,4 @@
-import didyoumean from "didyoumean";
+import original_didyoumean from "didyoumean";
 
 import type {
   Definition,
@@ -23,7 +23,7 @@ const TYPENAME_REGEX = /^[A-Z_]/;
 
 // TODO Ideally _derive_ this list of builtins directly from the grammar
 // instead somehow?
-const BUILTIN_KEYWORD_REGEX = /^(String|Int|Float|Boolean)$/i;
+const BUILTINS = ["String", "Int", "Float", "Boolean"];
 
 /**
  * Reserve these names for future use.
@@ -128,7 +128,7 @@ function checkTypeName(node: TypeName, context: Context): void {
 
   // Continue collecting more errors
 
-  if (BUILTIN_KEYWORD_REGEX.test(node.name)) {
+  if (BUILTINS.some((bname) => bname === node.name)) {
     context.report(
       `Type name ${quote(node.name)} is a built-in type`,
       [],
@@ -143,22 +143,54 @@ function checkTypeName(node: TypeName, context: Context): void {
   }
 }
 
-function checkTypeRef(node: TypeRef, context: Context): void {
-  const typeDef = context.registeredTypes.get(node.name.name);
-  if (typeDef === undefined) {
-    const suggestion = didyoumean(
-      node.name.name,
-      Array.from(context.registeredTypes.keys())
-    ) as string;
+/**
+ * Wrap didyoumean to avoid dealing with a million different possible output
+ * values.
+ */
+function didyoumean(value: string, alternatives: string[]): string[] {
+  const output = original_didyoumean(value, alternatives);
+  if (!output) {
+    return [];
+  } else if (Array.isArray(output)) {
+    return output;
+  } else {
+    return [output];
+  }
+}
 
-    context.report(
-      `Unknown type ${quote(node.name.name)}`,
-      [
-        `I didn't understand what ${quote(node.name.name)} refers to.`,
-        suggestion ? `Did you mean ${quote(suggestion)}?` : null,
-      ],
-      node.range
+function checkTypeRef(node: TypeRef, context: Context): void {
+  const name = node.name.name;
+  const typeDef = context.registeredTypes.get(name);
+  if (typeDef === undefined) {
+    // If we land here, it means there's an unknown type reference. Possibly
+    // caused by misspellings or people trying to learn/play with the language.
+    // Let's be friendly to them and assist them with fixing the problem,
+    // especially around common mistakes.
+    let alternatives: string[] = didyoumean(
+      node.name.name,
+      BUILTINS.concat(Array.from(context.registeredTypes.keys()))
     );
+
+    if (alternatives.length === 0) {
+      // It can be expected that people will try to put "number" in as a type,
+      // because that's TypeScript's syntax. If there is no custom type name
+      // found that closely matches this typo, then try to suggest one more thing
+      // to nudge them.
+      alternatives = /^num(ber)?$/i.test(name)
+        ? ["Float", "Int"]
+        : [
+            /* no alternatives */
+          ];
+    }
+
+    const suggestion =
+      alternatives.length > 0
+        ? `. Did you mean ${alternatives
+            .map((alt) => quote(alt))
+            .join(" or ")}?`
+        : "";
+
+    context.report(`Unknown type ${quote(name)}` + suggestion, [], node.range);
   }
 }
 
