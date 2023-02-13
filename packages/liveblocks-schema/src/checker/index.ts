@@ -13,6 +13,7 @@ import type {
 } from "../ast";
 import { isBuiltInScalar, visit } from "../ast";
 import { assertNever } from "../lib/assert";
+import DefaultMap from "../lib/DefaultMap";
 import type { ErrorReporter } from "../lib/error-reporting";
 
 function quote(value: string): string {
