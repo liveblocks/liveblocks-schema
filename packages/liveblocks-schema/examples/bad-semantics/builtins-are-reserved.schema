@@ -1,2 +1,3 @@
 type Int { a: String }
+     ^^^ Type name 'Int' is a built-in type
 type Storage { x: Int }

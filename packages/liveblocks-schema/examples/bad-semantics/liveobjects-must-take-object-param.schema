@@ -2,5 +2,11 @@ type Thing { x: Int }
 
 type Storage {
   a: LiveObject<Int>
+                ^^^ Unknown
+  #             TODO THIS ERROR MESSAGE IS SUPER UGLY AND NEEDS FIXING
   b: LiveObject<Thing>
 }
+---
+type Storage { bad: LiveObject<String> }
+                               ^^^^^^ Unknown
+#                              TODO THIS ERROR MESSAGE IS SUPER UGLY AND NEEDS FIXING

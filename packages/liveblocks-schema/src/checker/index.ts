@@ -367,7 +367,7 @@ function checkDocument(doc: Document, context: Context): void {
 
   if (!context.registeredTypes.has("Storage")) {
     context.errorReporter.throwSemanticError(
-      'Missing root definition "Storage"',
+      "Missing root object type definition named 'Storage'",
       [
         'Every Liveblocks schema requires at least one type definition named "Storage",',
         "which indicated the root of the storage. You can declare a schema like this:",

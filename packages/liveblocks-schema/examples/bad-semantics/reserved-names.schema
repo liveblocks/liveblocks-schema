@@ -1,0 +1,7 @@
+type Presence {}
+     ^ Type name 'Presence' is reserved for future use
+type Storage {}
+---
+type Array {}
+     ^ Type name 'Array' is reserved for future use
+type Storage {}
