@@ -34,12 +34,24 @@ const RESERVED_TYPENAMES_REGEX = /^Live|^(Presence|Array)$/i;
 class Context {
   errorReporter: ErrorReporter;
 
-  // A registry of user-defined types by their identifier names
+  // A registry of user-defined types by their identifier names. Defined during
+  // the first checkDocument pass.
   registeredTypes: Map<string, Definition>;
+
+  // Reverse lookup table, to find which type definitions depend on which other
+  // type definitions. Defined during the first checkDocument pass.
+  usedBy: DefaultMap<string, Set<string>>;
+
+  // Set of types that (directly or indirectly) have Live constructs in their
+  // field definitions. As such, these types can only be used by other Live
+  // types. Defined during the first checkDocument pass.
+  liveOnlyTypes: Set<string>;
 
   constructor(errorReporter: ErrorReporter) {
     this.errorReporter = errorReporter;
     this.registeredTypes = new Map();
+    this.usedBy = new DefaultMap(() => new Set());
+    this.liveOnlyTypes = new Set();
   }
 
   //
@@ -88,6 +100,7 @@ function checkObjectLiteralExpr(
   obj: ObjectLiteralExpr,
   context: Context
 ): void {
+  // Check for any duplicate field names
   for (const [first, second] of dupes(obj.fields, (f) => f.name.name)) {
     context.report(
       `A field named ${quote(
@@ -196,7 +209,11 @@ function checkTypeRefTargetExists(node: TypeRef, context: Context): void {
   }
 }
 
-function checkTypeRef(node: TypeRef, context: Context): void {
+function checkTypeRef(
+  node: TypeRef,
+  context: Context,
+  path: readonly Node[]
+): void {
   checkTypeRefTargetExists(node, context);
 
   //
@@ -210,7 +227,7 @@ function checkTypeRef(node: TypeRef, context: Context): void {
   // It should be impossible to refer to Foo as a "normal" type, without
   // wrapping it in a Live<...> wrapper itself.
   //
-  checkLiveRefs(node, context);
+  checkLiveRefs(node, context, path);
 }
 
 function checkNoForbiddenRefs(
@@ -261,8 +278,34 @@ function checkNoForbiddenRefs(
   }
 }
 
-function checkLiveRefs(typeRef: TypeRef, context: Context): void {
-  //
+function checkLiveRefs(
+  typeRef: TypeRef,
+  context: Context,
+  path: readonly Node[]
+): void {
+  // If the type referenced here requires a live context,
+  // we'll have to ensure that the entire chain
+
+  if (context.liveOnlyTypes.has(typeRef.name.name)) {
+    // Walk up the path. If we encounter a Live type wrapper, then it's fine.
+    // Otherwise, if we encounter an object definition, then
+
+    if (path.some((node) => node._kind === "LiveObjectTypeExpr")) {
+      // We're all good!
+    } else {
+      context.report(
+        `Type ${quote(
+          typeRef.name.name
+        )} can only be used as a Live type. Did you mean to write 'LiveObject<${
+          typeRef.name.name
+        }>'?`,
+        [],
+        typeRef.range
+      );
+    }
+
+    console.log({ typeRef });
+  }
 }
 
 function checkObjectTypeDefinition(
@@ -294,6 +337,27 @@ function checkDocument(doc: Document, context: Context): void {
     } else {
       // All good, let's register it!
       context.registeredTypes.set(name, def);
+
+      // Also, while registering it, quickly search all subnodes to see if any
+      // of its field definitions use a Live wrapper. If so, we should mark the
+      // object type definition to require a Live type.
+      visit(
+        def,
+        {
+          // TODO: Add all other future LiveXxxTypeExprs here, too
+          // TODO: Would be nicer if we could use a NodeGroup as a visitor
+          //       function directly, perhaps?
+          //       i.e. LiveTypeExpr: () => { ... }?
+          LiveObjectTypeExpr: () => {
+            context.liveOnlyTypes.add(def.name.name);
+          },
+
+          TypeRef: (ref: TypeRef) => {
+            context.usedBy.getOrCreate(ref.name.name).add(def.name.name);
+          },
+        },
+        null
+      );
     }
   }
 
@@ -309,6 +373,20 @@ function checkDocument(doc: Document, context: Context): void {
         "  }",
       ]
     );
+  }
+
+  // Now that we know which types are "live only", we'll need to do another
+  // quick pass to let that requirements infect all of their (indirect)
+  // dependencies too
+  const queue = [...context.liveOnlyTypes];
+  let curr: string | undefined;
+  while ((curr = queue.pop()) !== undefined) {
+    context.usedBy.get(curr)?.forEach((dependant) => {
+      if (!context.liveOnlyTypes.has(dependant)) {
+        context.liveOnlyTypes.add(dependant);
+        queue.push(dependant);
+      }
+    });
   }
 }
 
