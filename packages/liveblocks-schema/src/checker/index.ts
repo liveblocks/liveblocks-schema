@@ -16,7 +16,7 @@ import { assertNever } from "../lib/assert";
 import type { ErrorReporter } from "../lib/error-reporting";
 
 function quote(value: string): string {
-  return JSON.stringify(value);
+  return `'${value.replace(/'/g, "\\'")}'`;
 }
 
 const TYPENAME_REGEX = /^[A-Z_]/;
