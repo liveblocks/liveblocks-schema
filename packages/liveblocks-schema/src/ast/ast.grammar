@@ -29,8 +29,8 @@
 # Reference to a custom, user-defined, type. Not a built-in. Things like
 # "Circle", "BlogPost", "LiveObject<Circle>", "LiveObject<BlogPost>", etc.
 TypeRef:
-    asLiveObject  boolean
     ref           TypeName
+    asLiveObject  boolean
 
 
 Document:
@@ -60,8 +60,8 @@ ObjectLiteralExpr:
 
 # e.g. type Circle { cx: Number; cy: Number; r: Float }
 ObjectTypeDefinition:
-    name  TypeName
-    obj   ObjectLiteralExpr
+    name    TypeName
+    fields  FieldDef*
 
 
 # StringLiteral:
