@@ -159,7 +159,7 @@ function didyoumean(value: string, alternatives: string[]): string[] {
   }
 }
 
-function checkTypeRef(node: TypeRef, context: Context): void {
+function checkTypeRefTargetExists(node: TypeRef, context: Context): void {
   const name = node.name.name;
   const typeDef = context.registeredTypes.get(name);
   if (typeDef === undefined) {
@@ -195,7 +195,22 @@ function checkTypeRef(node: TypeRef, context: Context): void {
   }
 }
 
-// FIXME(nvie) Other examples: Boolean, LiveXxx, Regex, List, Email
+function checkTypeRef(node: TypeRef, context: Context): void {
+  checkTypeRefTargetExists(node, context);
+
+  //
+  // For each definition, first ensure that it and annotate whether or not they
+  // are usable in "live contexts" only. For example, in a definition like:
+  //
+  //   type Foo {
+  //     a: LiveObject<Bar>  // or LiveList, or ...
+  //   }
+  //
+  // It should be impossible to refer to Foo as a "normal" type, without
+  // wrapping it in a Live<...> wrapper itself.
+  //
+  checkLiveRefs(node, context);
+}
 
 function checkNoForbiddenRefs(
   typeExpr: TypeExpr,
@@ -245,6 +260,10 @@ function checkNoForbiddenRefs(
   }
 }
 
+function checkLiveRefs(typeRef: TypeRef, context: Context): void {
+  //
+}
+
 function checkObjectTypeDefinition(
   def: ObjectTypeDefinition,
   context: Context
@@ -256,7 +275,6 @@ function checkObjectTypeDefinition(
 function checkDocument(doc: Document, context: Context): void {
   // Now, first add all definitions to the global registry
   for (const def of doc.definitions) {
-    // FIXME(nvie) Factor out into checkDefinition?
     const name = def.name.name;
     const existing = context.registeredTypes.get(name);
     if (existing !== undefined) {
@@ -286,7 +304,7 @@ function checkDocument(doc: Document, context: Context): void {
         "which indicated the root of the storage. You can declare a schema like this:",
         "",
         "  type Storage {",
-        "    // Your fields here",
+        "    # Your fields here",
         "  }",
       ]
     );
