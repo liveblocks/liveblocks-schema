@@ -2,11 +2,11 @@ type Thing { x: Int }
 
 type Storage {
   a: LiveObject<Int>
-     ^^^^^^^^^^^^^^^ Unknown type 'Int'. Did you mean 'Int'?
+                ^^^ Unknown type 'Int'. Did you mean 'Int'?
      # XXX! THESE ERROR MESSAGES ARE INCORRECTLY PLACED AND UGLY! FIX THEM!
   b: LiveObject<Thing>
 }
 ---
 type Storage { bad: LiveObject<String> }
-                    ^^^^^^^^^^^^^^^^^^ Unknown type 'String'. Did you mean 'String'?
+                               ^^^^^^ Unknown type 'String'. Did you mean 'String'?
                     # XXX! THESE ERROR MESSAGES ARE INCORRECTLY PLACED AND UGLY! FIX THEM!

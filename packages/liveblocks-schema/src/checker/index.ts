@@ -194,7 +194,7 @@ function checkTypeRefTargetExists(node: TypeRef, context: Context): void {
             .join(" or ")}?`
         : "";
 
-    context.report(`Unknown type ${quote(name)}` + suggestion, node.range);
+    context.report(`Unknown type ${quote(name)}` + suggestion, node.ref.range);
   }
 }
 
