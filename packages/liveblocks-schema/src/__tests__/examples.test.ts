@@ -32,7 +32,12 @@ function readExamplesSync(filename: string): string[] {
 }
 
 function escapeRegex(value: string): string {
-  return value.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
+  return (
+    value
+      .replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&")
+      // Interpret "***" as a wildcard
+      .replace("\\*\\*\\*", ".*")
+  );
 }
 
 function declareJestTest(filename: string) {
@@ -64,10 +69,22 @@ describe("examples", () => {
       const lines = content.split("\n");
       for (let i = 0; i < lines.length - 1; i++) {
         const line = lines[i];
-        const annotation = line.match(/^\s*[\^]+\s*(.*)$/);
+        const annotation = line.match(/^(\s*)[\^]+([|]?)\s*(.*)$/);
         if (annotation) {
-          const text = annotation[1] || "<no expected error message>";
-          errmsg = new RegExp(escapeRegex(text));
+          const lineno1 = i;
+          const column1 = annotation[1].length + 1;
+          const noPosOrNoExactPosition = annotation[2] !== "";
+          const expectedErrorText =
+            annotation[3] || "<no expected error message>";
+          errmsg = new RegExp(
+            "^" +
+              escapeRegex(
+                noPosOrNoExactPosition
+                  ? `${expectedErrorText}***`
+                  : `${expectedErrorText} (at ${lineno1}:${column1})`
+              ) +
+              "$"
+          );
           lines.splice(i, 1);
           break;
         }

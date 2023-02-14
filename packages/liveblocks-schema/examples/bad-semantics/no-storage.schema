@@ -1,2 +1,2 @@
-^ Missing root object type definition named 'Storage'
 type Thing { name: String }
+^| Missing root object type definition named 'Storage'

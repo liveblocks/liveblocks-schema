@@ -72,10 +72,10 @@ class Context {
     }
   }
 
-  report(title: string, description: (string | null)[], range?: Range): void {
+  report(title: string, range?: Range): void {
     // FIXME(nvie) Don't throw on the first error! Collect a few (max 3?) and then throw as one error.
     // this.errorReporter.printSemanticError(title, description, range);
-    this.errorReporter.throwSemanticError(title, description, range);
+    this.errorReporter.throwSemanticError(title, range);
   }
 }
 
@@ -105,7 +105,6 @@ function checkNoDuplicateFields(fieldDefs: FieldDef[], context: Context): void {
       )} is defined multiple times (on line ${context.lineno(
         first.name.range
       )} and ${context.lineno(second.name.range)})`,
-      [],
       second.name.range
     );
   }
@@ -120,7 +119,7 @@ function checkObjectLiteralExpr(
   // Check that none of the fields here use a "live" reference
   for (const field of obj.fields) {
     if (field.type._kind === "TypeRef" && field.type.asLiveObject) {
-      context.report("Cannot use a LiveObject here", [], field.type.range);
+      context.report("Cannot use a LiveObject here", field.type.range);
     }
   }
 }
@@ -129,7 +128,6 @@ function checkTypeName(node: TypeName, context: Context): void {
   if (!TYPENAME_REGEX.test(node.name)) {
     context.report(
       "Type names should start with an uppercase character",
-      [],
       node.range
     );
   }
@@ -139,13 +137,11 @@ function checkTypeName(node: TypeName, context: Context): void {
   if (BUILTINS.some((bname) => bname === node.name)) {
     context.report(
       `Type name ${quote(node.name)} is a built-in type`,
-      [],
       node.range
     );
   } else if (RESERVED_TYPENAMES_REGEX.test(node.name)) {
     context.report(
       `Type name ${quote(node.name)} is reserved for future use`,
-      [],
       node.range
     );
   }
@@ -198,7 +194,7 @@ function checkTypeRefTargetExists(node: TypeRef, context: Context): void {
             .join(" or ")}?`
         : "";
 
-    context.report(`Unknown type ${quote(name)}` + suggestion, [], node.range);
+    context.report(`Unknown type ${quote(name)}` + suggestion, node.range);
   }
 }
 
@@ -212,11 +208,7 @@ function checkLiveObjectPayloadIsObjectType(
     context.registeredTypes.get(typeRef.ref.name)?._kind !==
       "ObjectTypeDefinition"
   ) {
-    context.report(
-      "Not an object type",
-      ["LiveObject can only be used on object types"],
-      typeRef.ref.range
-    );
+    context.report("Not an object type", typeRef.ref.range);
     return undefined;
   }
 }
@@ -276,7 +268,6 @@ function checkNoForbiddenRefs(
       if (forbidden.has(node.ref.name)) {
         context.report(
           `Cyclical reference detected: ${quote(node.ref.name)}`,
-          [],
           node.range
         );
       }
@@ -305,7 +296,6 @@ function checkLiveRefs(typeRef: TypeRef, context: Context): void {
       )} can only be used as a Live type. Did you mean to write 'LiveObject<${
         typeRef.ref.name
       }>'?`,
-      [],
       typeRef.range
     );
   }
@@ -333,10 +323,6 @@ function checkDocument(doc: Document, context: Context): void {
         )} is defined multiple times (on line ${context.lineno(
           existing.name.range
         )} and ${context.lineno(def.name.range)})`,
-        [
-          "You cannot declare types multiple times.",
-          "Please remove the duplicate definition, or use a different name.",
-        ],
         def.name.range
       );
     } else {
@@ -367,15 +353,7 @@ function checkDocument(doc: Document, context: Context): void {
 
   if (!context.registeredTypes.has("Storage")) {
     context.errorReporter.throwSemanticError(
-      "Missing root object type definition named 'Storage'",
-      [
-        'Every Liveblocks schema requires at least one type definition named "Storage",',
-        "which indicated the root of the storage. You can declare a schema like this:",
-        "",
-        "  type Storage {",
-        "    # Your fields here",
-        "  }",
-      ]
+      "Missing root object type definition named 'Storage'"
     );
   }
 

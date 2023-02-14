@@ -1,2 +1,2 @@
 type foo
-        ^ Expected "=" or "{" but end of input found.
+        ^| Expected "=" or "{" but end of input found
