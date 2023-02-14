@@ -165,37 +165,37 @@ function didyoumean(value: string, alternatives: string[]): string[] {
 function checkTypeRefTargetExists(node: TypeRef, context: Context): void {
   const name = node.ref.name;
   const typeDef = context.registeredTypes.get(name);
-  if (typeDef === undefined) {
-    // If we land here, it means there's an unknown type reference. Possibly
-    // caused by misspellings or people trying to learn/play with the language.
-    // Let's be friendly to them and assist them with fixing the problem,
-    // especially around common mistakes.
-    let alternatives: string[] = didyoumean(
-      node.ref.name,
-      BUILTINS.concat(Array.from(context.registeredTypes.keys()))
-    );
-
-    if (alternatives.length === 0) {
-      // It can be expected that people will try to put "number" in as a type,
-      // because that's TypeScript's syntax. If there is no custom type name
-      // found that closely matches this typo, then try to suggest one more thing
-      // to nudge them.
-      alternatives = /^num(ber)?$/i.test(name)
-        ? ["Float", "Int"]
-        : [
-            /* no alternatives */
-          ];
-    }
-
-    const suggestion =
-      alternatives.length > 0
-        ? `. Did you mean ${alternatives
-            .map((alt) => quote(alt))
-            .join(" or ")}?`
-        : "";
-
-    context.report(`Unknown type ${quote(name)}` + suggestion, node.ref.range);
+  if (typeDef !== undefined) {
+    return;
   }
+
+  // If we land here, it means there's an unknown type reference. Possibly
+  // caused by misspellings or people trying to learn/play with the language.
+  // Let's be friendly to them and assist them with fixing the problem,
+  // especially around common mistakes.
+  let alternatives: string[] = didyoumean(
+    node.ref.name,
+    BUILTINS.concat(Array.from(context.registeredTypes.keys()))
+  );
+
+  if (alternatives.length === 0) {
+    // It can be expected that people will try to put "number" in as a type,
+    // because that's TypeScript's syntax. If there is no custom type name
+    // found that closely matches this typo, then try to suggest one more thing
+    // to nudge them.
+    alternatives = /^num(ber)?$/i.test(name)
+      ? ["Float", "Int"]
+      : [
+          /* no alternatives */
+        ];
+  }
+
+  const suggestion =
+    alternatives.length > 0
+      ? `. Did you mean ${alternatives.map((alt) => quote(alt)).join(" or ")}?`
+      : "";
+
+  context.report(`Unknown type ${quote(name)}` + suggestion, node.ref.range);
 }
 
 function checkLiveObjectPayloadIsObjectType(
@@ -208,15 +208,28 @@ function checkLiveObjectPayloadIsObjectType(
     context.registeredTypes.get(typeRef.ref.name)?._kind !==
       "ObjectTypeDefinition"
   ) {
-    context.report("Not an object type", typeRef.ref.range);
+    const alternatives: string[] = didyoumean(
+      typeRef.ref.name,
+      Array.from(context.registeredTypes)
+        .filter(([, def]) => def._kind === "ObjectTypeDefinition")
+        .map(([key]) => key)
+    );
+
+    context.report(
+      `Type ${quote(typeRef.ref.name)} is not an object type` +
+        (alternatives.length > 0
+          ? `. Did you mean ${alternatives.map(quote).join(" or ")}?`
+          : ""),
+      typeRef.ref.range
+    );
     return undefined;
   }
 }
 
 function checkTypeRef(ref: TypeRef, context: Context): void {
-  checkTypeRefTargetExists(ref, context);
-
   checkLiveObjectPayloadIsObjectType(ref, context);
+
+  checkTypeRefTargetExists(ref, context);
 
   //
   // For each definition, first ensure that it and annotate whether or not they
