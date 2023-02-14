@@ -136,12 +136,12 @@ function checkTypeName(node: TypeName, context: Context): void {
 
   if (BUILTINS.some((bname) => bname === node.name)) {
     context.report(
-      `Type name ${quote(node.name)} is a built-in type`,
+      `Name ${quote(node.name)} is a built-in and cannot be redefined`,
       node.range
     );
   } else if (RESERVED_TYPENAMES_REGEX.test(node.name)) {
     context.report(
-      `Type name ${quote(node.name)} is reserved for future use`,
+      `Name ${quote(node.name)} is reserved for future use`,
       node.range
     );
   }

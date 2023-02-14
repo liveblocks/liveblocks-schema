@@ -1,7 +1,7 @@
 type LiveText { x: Int }
-     ^^^^^^^^ Type name 'LiveText' is reserved for future use
+     ^^^^^^^^ Name 'LiveText' is reserved for future use
 type Storage { a: LiveText }
 ---
 type LiveWhatever { x: Int }
-     ^^^^^^^^^^^^ Type name 'LiveWhatever' is reserved for future use
+     ^^^^^^^^^^^^ Name 'LiveWhatever' is reserved for future use
 type Storage { a: LiveWhatever }
