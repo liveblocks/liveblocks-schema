@@ -364,12 +364,6 @@ function checkDocument(doc: Document, context: Context): void {
     }
   }
 
-  if (!context.registeredTypes.has("Storage")) {
-    context.errorReporter.throwSemanticError(
-      "Missing root object type definition named 'Storage'"
-    );
-  }
-
   // Now that we know which types are "live only", we'll need to do another
   // quick pass to let that requirements infect all of their (indirect)
   // dependencies too
@@ -429,6 +423,21 @@ export function check(
     },
     context
   );
+
+  if (!context.registeredTypes.has("Storage")) {
+    context.errorReporter.throwSemanticError(
+      "Missing root object type definition named 'Storage'"
+    );
+  }
+
+  for (const [key, def] of context.registeredTypes) {
+    if (key !== "Storage" && !context.usedBy.has(key)) {
+      context.report(
+        `Type ${quote(def.name.name)} is defined but never used`,
+        def.name.range
+      );
+    }
+  }
 
   if (context.errorReporter.hasErrors) {
     throw new Error("There were errors");
