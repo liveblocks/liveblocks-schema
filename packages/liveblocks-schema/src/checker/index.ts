@@ -348,7 +348,11 @@ function checkObjectTypeDefinition(
   checkNoForbiddenRefs(def, context, new Set([def.name.name]));
 }
 
-function checkDocument(doc: Document, context: Context): void {
+/**
+ * This initial pass registers all type definitions found in the AST in the
+ * registeredTypes registry in the context, for easy lookup.
+ */
+function registerTypeDefinitions(doc: Document, context: Context): void {
   // Now, first add all definitions to the global registry
   for (const def of doc.definitions) {
     const name = def.name.name;
@@ -365,27 +369,32 @@ function checkDocument(doc: Document, context: Context): void {
     } else {
       // All good, let's register it!
       context.registeredTypes.set(name, def);
-
-      // Also, while registering it, quickly search all subnodes to see if any
-      // of its field definitions use a Live wrapper. If so, we should mark the
-      // object type definition to require a Live type.
-      visit(
-        def,
-        {
-          // TODO: Add all other future LiveXxxTypeExprs here, too
-          // TODO: Would be nicer if we could use a NodeGroup as a visitor
-          //       function directly, perhaps?
-          //       i.e. LiveTypeExpr: () => { ... }?
-          TypeRef: (typeRef) => {
-            if (typeRef.asLiveObject) {
-              context.liveOnlyTypes.add(def.name.name);
-            }
-            context.usedBy.getOrCreate(typeRef.ref.name).add(def.name.name);
-          },
-        },
-        null
-      );
     }
+  }
+}
+
+function buildReverseLookupTables(context: Context): void {
+  // Now, first add all definitions to the global registry
+  for (const [, def] of context.registeredTypes) {
+    // Also, while registering it, quickly search all subnodes to see if any
+    // of its field definitions use a Live wrapper. If so, we should mark the
+    // object type definition to require a Live type.
+    visit(
+      def,
+      {
+        // TODO: Add all other future LiveXxxTypeExprs here, too
+        // TODO: Would be nicer if we could use a NodeGroup as a visitor
+        //       function directly, perhaps?
+        //       i.e. LiveTypeExpr: () => { ... }?
+        TypeRef: (typeRef) => {
+          if (typeRef.asLiveObject) {
+            context.liveOnlyTypes.add(def.name.name);
+          }
+          context.usedBy.getOrCreate(typeRef.ref.name).add(def.name.name);
+        },
+      },
+      null
+    );
   }
 
   // Now that we know which types are "live only", we'll need to do another
@@ -435,11 +444,18 @@ export function check(
 ): CheckedDocument {
   const context = new Context(errorReporter);
 
-  // Check the entire tree
+  // First pass: register all definitions in the registry
+  registerTypeDefinitions(doc, context);
+
+  // Second pass: decide static/live for all object types
+
+  // Now build all reverse lookup tables
+  buildReverseLookupTables(context);
+
+  // Last pass: check the entire tree
   visit(
     doc,
     {
-      Document: checkDocument,
       ObjectLiteralExpr: checkObjectLiteralExpr,
       ObjectTypeDefinition: checkObjectTypeDefinition,
       TypeName: checkTypeName,
