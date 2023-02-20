@@ -11,7 +11,6 @@ import type {
 } from "../ast";
 import { isBuiltInScalar, visit } from "../ast";
 import { assertNever } from "../lib/assert";
-import DefaultMap from "../lib/DefaultMap";
 import { didyoumean as dym } from "../lib/didyoumean";
 import type { ErrorReporter } from "../lib/error-reporting";
 
@@ -74,14 +73,9 @@ class Context {
   // the first checkDocument pass.
   registeredTypes: Map<string, Definition>;
 
-  // Reverse lookup table, to find which type definitions depend on which other
-  // type definitions. Defined during the first checkDocument pass.
-  usedBy: DefaultMap<string, Set<string>>;
-
-  // Set of types that (directly or indirectly) have Live constructs in their
-  // field definitions. As such, these types can only be used by other Live
-  // types. Defined during the first checkDocument pass.
-  liveOnlyTypes: Set<string>;
+  // Maintain a list of unreferenced definitions. If at the end of the checking
+  // phase, this thing still contains any entries, we throw an error.
+  unreferencedDefs: Set<Definition>;
 
   readonly suggestors = {
     objectTypeName: (name: string): string[] =>
@@ -102,8 +96,7 @@ class Context {
   constructor(errorReporter: ErrorReporter) {
     this.errorReporter = errorReporter;
     this.registeredTypes = new Map();
-    this.usedBy = new DefaultMap(() => new Set());
-    this.liveOnlyTypes = new Set();
+    this.unreferencedDefs = new Set();
   }
 
   //
@@ -281,7 +274,7 @@ function checkTypeRef(ref: TypeRef, context: Context): void {
   // It should be impossible to refer to Foo as a "normal" type, without
   // wrapping it in a Live<...> wrapper itself.
   //
-  checkLiveRefs(ref, context);
+  checkLiveObjectRefs(ref, context);
 }
 
 function checkNoForbiddenRefs(
@@ -338,13 +331,28 @@ function checkNoForbiddenRefs(
   }
 }
 
-function checkLiveRefs(typeRef: TypeRef, context: Context): void {
-  // If the type referenced here requires a live context, this must be written
-  // as a LiveObject<> wrapper.
-  if (context.liveOnlyTypes.has(typeRef.ref.name) && !typeRef.asLiveObject) {
+function checkLiveObjectRefs(typeRef: TypeRef, context: Context): void {
+  const def = context.getDefinition(typeRef);
+  if (def._kind !== "ObjectTypeDefinition") {
+    // This check only checks object type definitions
+    return;
+  }
+
+  // Static objects may not be referenced with LiveObject<> references
+  if (def.isStatic && typeRef.asLiveObject) {
     context.report(
-      `Type ${quote(typeRef.ref.name)} must be referred to as ${quote(
-        `LiveObject<${typeRef.ref.name}>`
+      `Type ${quote(def.name.name)} cannot be used with LiveObject<${quote(
+        def.name.name
+      )}>`,
+      typeRef.range
+    );
+  }
+
+  // Live objects must be referenced with LiveObject<> references
+  if (!def.isStatic && !typeRef.asLiveObject) {
+    context.report(
+      `Type ${quote(def.name.name)} must be referred to as ${quote(
+        `LiveObject<${def.name.name}>`
       )}`,
       typeRef.range
     );
@@ -382,6 +390,7 @@ function registerTypeDefinitions(doc: Document, context: Context): void {
     } else {
       // All good, let's register it!
       context.registeredTypes.set(name, def);
+      context.unreferencedDefs.add(def);
     }
   }
 }
@@ -389,35 +398,74 @@ function registerTypeDefinitions(doc: Document, context: Context): void {
 /**
  * For all object type definitions, decide whether or not they are used in
  * static or live contexts.
+ *
+ * What will make an object type a "live" object type?
+ *
+ * 1. It uses a LiveObject, LiveList, or LiveMap construct in its definition
+ * 2. All references to it use LiveObject<> wrappers
+ *
  */
 function decideStaticOrLive(doc: Document, context: Context): void {
   const staticObjRefs = new Map<string, TypeRef>();
-  const liveObjRefs = new Map<string, TypeRef>();
+  const liveObjRefs = new Map<string, TypeRef | null>();
 
+  // First, if a definition uses a Live structure in its definition, it must be
+  // a live type itself
+  for (const def of context.registeredTypes.values()) {
+    if (def._kind !== "ObjectTypeDefinition") {
+      continue;
+    }
+
+    try {
+      visit(
+        def,
+        {
+          TypeRef: (ref) => {
+            if (ref.asLiveObject) {
+              liveObjRefs.set(def.name.name, null);
+              throw "break";
+            }
+          },
+        },
+        null
+      );
+    } catch {}
+  }
+
+  // Otherwise, it's static only if all references to it don't use LiveObject<>
   visit(
     doc,
     {
       TypeRef: (typeRef) => {
         const def = context.registeredTypes.get(typeRef.ref.name);
+        if (def !== undefined) {
+          context.unreferencedDefs.delete(def);
+        }
+
         if (def?._kind !== "ObjectTypeDefinition") {
           return;
         }
 
         if (typeRef.asLiveObject) {
-          liveObjRefs.set(def.name.name, typeRef);
-
           const conflict = staticObjRefs.get(def.name.name);
-          if (conflict) {
+          if (conflict === undefined) {
+            liveObjRefs.set(def.name.name, typeRef);
+          } else {
             context.report(
               `Type ${quote(def.name.name)} already referenced as ${quote(`LiveObject<${def.name.name}>`)} on line ${context.lineno(typeRef.range)}. You cannot mix these references.`, // prettier-ignore
               conflict.range
             );
           }
         } else {
-          staticObjRefs.set(def.name.name, typeRef);
-
           const conflict = liveObjRefs.get(def.name.name);
-          if (conflict) {
+          if (conflict === undefined) {
+            staticObjRefs.set(def.name.name, typeRef);
+          } else if (conflict === null) {
+            context.report(
+              `Type ${quote(def.name.name)} uses Live constructs, so it must be referenced as ${quote(`LiveObject<${def.name.name}>`)}`, // prettier-ignore
+              typeRef.range
+            );
+          } else {
             context.report(
               `Type ${quote(def.name.name)} already referenced as ${quote(`LiveObject<${def.name.name}>`)} on line ${context.lineno(conflict.range)}. You cannot mix these references.`, // prettier-ignore
               typeRef.range
@@ -440,59 +488,7 @@ function decideStaticOrLive(doc: Document, context: Context): void {
   }
 }
 
-function buildReverseLookupTables(context: Context): void {
-  // Now, first add all definitions to the global registry
-  for (const [, def] of context.registeredTypes) {
-    // Also, while registering it, quickly search all subnodes to see if any
-    // of its field definitions use a Live wrapper. If so, we should mark the
-    // object type definition to require a Live type.
-    visit(
-      def,
-      {
-        // TODO: Add all other future LiveXxxTypeExprs here, too
-        // TODO: Would be nicer if we could use a NodeGroup as a visitor
-        //       function directly, perhaps?
-        //       i.e. LiveTypeExpr: () => { ... }?
-        TypeRef: (typeRef) => {
-          if (typeRef.asLiveObject) {
-            context.liveOnlyTypes.add(def.name.name);
-          }
-          context.usedBy.getOrCreate(typeRef.ref.name).add(def.name.name);
-        },
-      },
-      null
-    );
-  }
-
-  // Now that we know which types are "live only", we'll need to do another
-  // quick pass to let that requirements infect all of their (indirect)
-  // dependencies too
-  const queue = [...context.liveOnlyTypes];
-  let curr: string | undefined;
-  while ((curr = queue.pop()) !== undefined) {
-    context.usedBy.get(curr)?.forEach((dependant) => {
-      if (!context.liveOnlyTypes.has(dependant)) {
-        context.liveOnlyTypes.add(dependant);
-        queue.push(dependant);
-      }
-    });
-  }
-}
-
 export type CheckedDocument = {
-  /**
-   * The raw AST node.
-   */
-  // FIXME(nvie) Keep or remove?
-  // ast: Document;
-
-  /**
-   * A map of bindings from user-defined type names to their respective
-   * definitions.
-   */
-  // FIXME(nvie) Keep or remove?
-  // types: Map<string, Definition>;
-
   /**
    * Direct access to the root "Storage" definition.
    */
@@ -518,9 +514,6 @@ export function check(
   // how they're referenced
   decideStaticOrLive(doc, context);
 
-  // Now build all reverse lookup tables
-  buildReverseLookupTables(context);
-
   // Last pass: check the entire tree
   visit(
     doc,
@@ -539,13 +532,17 @@ export function check(
     );
   }
 
-  for (const [key, def] of context.registeredTypes) {
-    if (key !== "Storage" && !context.usedBy.has(key)) {
-      context.report(
-        `Type ${quote(def.name.name)} is defined but never used`,
-        def.name.range
-      );
+  // Throw an error for every unused definition
+  for (const unusedDef of context.unreferencedDefs) {
+    // The one exception that is allowed to be unused
+    if (unusedDef.name.name === "Storage") {
+      continue;
     }
+
+    context.report(
+      `Type ${quote(unusedDef.name.name)} is defined but never used`,
+      unusedDef.name.range
+    );
   }
 
   if (context.errorReporter.hasErrors) {
@@ -553,10 +550,6 @@ export function check(
   }
 
   return {
-    // FIXME(nvie) Keep or remove?
-    // ast: doc,
-    // types: context.registeredTypes,
-
     root: context.registeredTypes.get("Storage") as ObjectTypeDefinition,
     getDefinition(typeRef: TypeRef): Definition {
       const def = context.registeredTypes.get(typeRef.ref.name);
