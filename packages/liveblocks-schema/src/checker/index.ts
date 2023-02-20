@@ -171,7 +171,10 @@ function checkObjectLiteralExpr(
   // Check that none of the fields here use a "live" reference
   for (const field of obj.fields) {
     if (field.type._kind === "TypeRef" && field.type.asLiveObject) {
-      context.report("Cannot use a LiveObject here", field.type.range);
+      context.report(
+        "Cannot use a LiveObject reference inside an object literal",
+        field.type.range
+      );
     }
   }
 }
@@ -328,11 +331,9 @@ function checkLiveRefs(typeRef: TypeRef, context: Context): void {
   // as a LiveObject<> wrapper.
   if (context.liveOnlyTypes.has(typeRef.ref.name) && !typeRef.asLiveObject) {
     context.report(
-      `Type ${quote(
-        typeRef.ref.name
-      )} can only be used as a Live type. Did you mean to write ${quote(
+      `Type ${quote(typeRef.ref.name)} must be referred to as ${quote(
         `LiveObject<${typeRef.ref.name}>`
-      )}?`,
+      )}`,
       typeRef.range
     );
   }
@@ -370,6 +371,60 @@ function registerTypeDefinitions(doc: Document, context: Context): void {
       // All good, let's register it!
       context.registeredTypes.set(name, def);
     }
+  }
+}
+
+/**
+ * For all object type definitions, decide whether or not they are used in
+ * static or live contexts.
+ */
+function decideStaticOrLive(doc: Document, context: Context): void {
+  const staticObjRefs = new Map<string, TypeRef>();
+  const liveObjRefs = new Map<string, TypeRef>();
+
+  visit(
+    doc,
+    {
+      TypeRef: (typeRef) => {
+        const def = context.registeredTypes.get(typeRef.ref.name);
+        if (def?._kind !== "ObjectTypeDefinition") {
+          return;
+        }
+
+        if (typeRef.asLiveObject) {
+          liveObjRefs.set(def.name.name, typeRef);
+
+          const conflict = staticObjRefs.get(def.name.name);
+          if (conflict) {
+            context.report(
+              `Type ${quote(def.name.name)} already referenced as ${quote(`LiveObject<${def.name.name}>`)} on line ${context.lineno(typeRef.range)}. You cannot mix these references.`, // prettier-ignore
+              conflict.range
+            );
+          }
+        } else {
+          staticObjRefs.set(def.name.name, typeRef);
+
+          const conflict = liveObjRefs.get(def.name.name);
+          if (conflict) {
+            context.report(
+              `Type ${quote(def.name.name)} already referenced as ${quote(`LiveObject<${def.name.name}>`)} on line ${context.lineno(conflict.range)}. You cannot mix these references.`, // prettier-ignore
+              typeRef.range
+            );
+          }
+        }
+      },
+    },
+    null
+  );
+
+  for (const staticName of staticObjRefs.keys()) {
+    const def = context.registeredTypes.get(staticName)!;
+    def.isStatic = true;
+  }
+
+  for (const liveName of liveObjRefs.keys()) {
+    const def = context.registeredTypes.get(liveName)!;
+    def.isStatic = false;
   }
 }
 
@@ -447,7 +502,9 @@ export function check(
   // First pass: register all definitions in the registry
   registerTypeDefinitions(doc, context);
 
-  // Second pass: decide static/live for all object types
+  // Second pass: decide static/live for all object type definitions, based on
+  // how they're referenced
+  decideStaticOrLive(doc, context);
 
   // Now build all reverse lookup tables
   buildReverseLookupTables(context);

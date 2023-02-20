@@ -1,5 +1,9 @@
 # 0.0.9
 
+- Disallows object type definitions to be used in hybrid contexts. Given a type
+  definition of `type Foo {}`, then either all references to `Foo` must be
+  `'Foo'` or all references must be `'LiveObject<Foo>`, but no mixing is
+  allowed.
 - Fix: some ugly error messages making incorrect suggestions
 
 # 0.0.8

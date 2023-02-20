@@ -1,6 +1,6 @@
 type Storage {
   foo: Foo
-       ^^^ Type 'Foo' can only be used as a Live type. Did you mean to write 'LiveObject<Foo>'?
+       ^^^ Type 'Foo' must be referred to as 'LiveObject<Foo>'
 }
 
 type Foo { bar: LiveObject<Bar> }
@@ -10,7 +10,7 @@ type Bar {}
 
 type Storage {
   aFooLive: { foo: Foo }
-                   ^^^ Type 'Foo' can only be used as a Live type. Did you mean to write 'LiveObject<Foo>'?
+                   ^^^ Type 'Foo' must be referred to as 'LiveObject<Foo>'
 }
 
 type Foo { bar: Bar }
@@ -21,7 +21,7 @@ type Qux {}
 
 type Storage {
   a: { b: { c: { d: LiveObject<Foo> } } }
-                    ^^^^^^^^^^^^^^^ Cannot use a LiveObject here
+                    ^^^^^^^^^^^^^^^ Cannot use a LiveObject reference inside an object literal
 }
 
 type Foo {}
@@ -30,7 +30,7 @@ type Foo {}
 
 type Storage {
   a: { b: { c: { d: Foo } } }
-                    ^^^ Type 'Foo' can only be used as a Live type. Did you mean to write 'LiveObject<Foo>'?
+                    ^^^ Type 'Foo' must be referred to as 'LiveObject<Foo>'
 }
 
 type Foo { x: LiveObject<Bar> }
