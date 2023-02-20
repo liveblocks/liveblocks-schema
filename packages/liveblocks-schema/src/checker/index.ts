@@ -124,6 +124,18 @@ class Context {
     }
   }
 
+  getDefinition(typeRef: TypeRef): Definition {
+    const def = this.registeredTypes.get(typeRef.ref.name);
+    if (def === undefined) {
+      this.report(
+        `Unknown type name ${quote(typeRef.ref.name)}`,
+        typeRef.ref.range
+      );
+      throw new Error(`Unknown type name "${typeRef.ref.name}"`);
+    }
+    return def;
+  }
+
   report(title: string, range?: Range): void {
     // FIXME(nvie) Don't throw on the first error! Collect a few (max 3?) and then throw as one error.
     // this.errorReporter.printSemanticError(title, description, range);
