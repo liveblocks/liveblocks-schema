@@ -24,8 +24,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              59,
+              62,
             ],
           },
         },
@@ -47,8 +47,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              67,
+              70,
             ],
           },
         },
@@ -70,8 +70,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              75,
+              78,
             ],
           },
         },
@@ -111,8 +111,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "StringType",
             "range": [
-              0,
-              0,
+              114,
+              145,
             ],
           },
         },
@@ -134,8 +134,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              157,
+              160,
             ],
           },
         },
@@ -157,8 +157,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              172,
+              175,
             ],
           },
         },
@@ -180,8 +180,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              191,
+              194,
             ],
           },
         },
@@ -203,8 +203,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              211,
+              214,
             ],
           },
         },
@@ -308,8 +308,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "StringType",
             "range": [
-              0,
-              0,
+              296,
+              329,
             ],
           },
         },
@@ -331,8 +331,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              342,
+              345,
             ],
           },
         },
@@ -354,8 +354,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              358,
+              361,
             ],
           },
         },
@@ -377,8 +377,8 @@ exports[`checker large document (snapshot test) 1`] = `
           "type": {
             "_kind": "IntType",
             "range": [
-              0,
-              0,
+              378,
+              381,
             ],
           },
         },
