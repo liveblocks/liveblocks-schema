@@ -1,0 +1,631 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`checker large document (snapshot test) 1`] = `
+{
+  "definitions": [
+    {
+      "_kind": "ObjectTypeDefinition",
+      "fields": [
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "r",
+            "range": [
+              56,
+              57,
+            ],
+          },
+          "optional": false,
+          "range": [
+            56,
+            62,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "g",
+            "range": [
+              64,
+              65,
+            ],
+          },
+          "optional": false,
+          "range": [
+            64,
+            70,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "b",
+            "range": [
+              72,
+              73,
+            ],
+          },
+          "optional": false,
+          "range": [
+            72,
+            78,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+      ],
+      "isStatic": true,
+      "name": {
+        "_kind": "TypeName",
+        "name": "RGB",
+        "range": [
+          50,
+          53,
+        ],
+      },
+      "range": [
+        45,
+        80,
+      ],
+    },
+    {
+      "_kind": "ObjectTypeDefinition",
+      "fields": [
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "type",
+            "range": [
+              108,
+              112,
+            ],
+          },
+          "optional": false,
+          "range": [
+            108,
+            145,
+          ],
+          "type": {
+            "_kind": "StringType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "x",
+            "range": [
+              154,
+              155,
+            ],
+          },
+          "optional": false,
+          "range": [
+            154,
+            160,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "y",
+            "range": [
+              169,
+              170,
+            ],
+          },
+          "optional": false,
+          "range": [
+            169,
+            175,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "width",
+            "range": [
+              184,
+              189,
+            ],
+          },
+          "optional": false,
+          "range": [
+            184,
+            194,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "height",
+            "range": [
+              203,
+              209,
+            ],
+          },
+          "optional": false,
+          "range": [
+            203,
+            214,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "fill",
+            "range": [
+              223,
+              227,
+            ],
+          },
+          "optional": false,
+          "range": [
+            223,
+            232,
+          ],
+          "type": {
+            "_kind": "TypeRef",
+            "asLiveObject": false,
+            "range": [
+              229,
+              232,
+            ],
+            "ref": {
+              "_kind": "TypeName",
+              "name": "RGB",
+              "range": [
+                229,
+                232,
+              ],
+            },
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "stroke",
+            "range": [
+              241,
+              247,
+            ],
+          },
+          "optional": false,
+          "range": [
+            241,
+            252,
+          ],
+          "type": {
+            "_kind": "TypeRef",
+            "asLiveObject": false,
+            "range": [
+              249,
+              252,
+            ],
+            "ref": {
+              "_kind": "TypeName",
+              "name": "RGB",
+              "range": [
+                249,
+                252,
+              ],
+            },
+          },
+        },
+      ],
+      "isStatic": false,
+      "name": {
+        "_kind": "TypeName",
+        "name": "Rect",
+        "range": [
+          93,
+          97,
+        ],
+      },
+      "range": [
+        88,
+        260,
+      ],
+    },
+    {
+      "_kind": "ObjectTypeDefinition",
+      "fields": [
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "type",
+            "range": [
+              290,
+              294,
+            ],
+          },
+          "optional": false,
+          "range": [
+            290,
+            329,
+          ],
+          "type": {
+            "_kind": "StringType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "cx",
+            "range": [
+              338,
+              340,
+            ],
+          },
+          "optional": false,
+          "range": [
+            338,
+            345,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "cy",
+            "range": [
+              354,
+              356,
+            ],
+          },
+          "optional": false,
+          "range": [
+            354,
+            361,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "radius",
+            "range": [
+              370,
+              376,
+            ],
+          },
+          "optional": false,
+          "range": [
+            370,
+            381,
+          ],
+          "type": {
+            "_kind": "IntType",
+            "range": [
+              0,
+              0,
+            ],
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "fill",
+            "range": [
+              390,
+              394,
+            ],
+          },
+          "optional": false,
+          "range": [
+            390,
+            399,
+          ],
+          "type": {
+            "_kind": "TypeRef",
+            "asLiveObject": false,
+            "range": [
+              396,
+              399,
+            ],
+            "ref": {
+              "_kind": "TypeName",
+              "name": "RGB",
+              "range": [
+                396,
+                399,
+              ],
+            },
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "stroke",
+            "range": [
+              408,
+              414,
+            ],
+          },
+          "optional": false,
+          "range": [
+            408,
+            419,
+          ],
+          "type": {
+            "_kind": "TypeRef",
+            "asLiveObject": false,
+            "range": [
+              416,
+              419,
+            ],
+            "ref": {
+              "_kind": "TypeName",
+              "name": "RGB",
+              "range": [
+                416,
+                419,
+              ],
+            },
+          },
+        },
+      ],
+      "isStatic": false,
+      "name": {
+        "_kind": "TypeName",
+        "name": "Circle",
+        "range": [
+          273,
+          279,
+        ],
+      },
+      "range": [
+        268,
+        427,
+      ],
+    },
+    {
+      "_kind": "ObjectTypeDefinition",
+      "fields": [
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "mycircle",
+            "range": [
+              493,
+              501,
+            ],
+          },
+          "optional": false,
+          "range": [
+            493,
+            521,
+          ],
+          "type": {
+            "_kind": "TypeRef",
+            "asLiveObject": true,
+            "range": [
+              503,
+              521,
+            ],
+            "ref": {
+              "_kind": "TypeName",
+              "name": "Circle",
+              "range": [
+                514,
+                520,
+              ],
+            },
+          },
+        },
+        {
+          "_kind": "FieldDef",
+          "name": {
+            "_kind": "Identifier",
+            "name": "myrect",
+            "range": [
+              530,
+              536,
+            ],
+          },
+          "optional": false,
+          "range": [
+            530,
+            554,
+          ],
+          "type": {
+            "_kind": "TypeRef",
+            "asLiveObject": true,
+            "range": [
+              538,
+              554,
+            ],
+            "ref": {
+              "_kind": "TypeName",
+              "name": "Rect",
+              "range": [
+                549,
+                553,
+              ],
+            },
+          },
+        },
+      ],
+      "isStatic": false,
+      "name": {
+        "_kind": "TypeName",
+        "name": "Storage",
+        "range": [
+          440,
+          447,
+        ],
+      },
+      "range": [
+        435,
+        562,
+      ],
+    },
+  ],
+  "getDefinition": [Function],
+  "root": {
+    "_kind": "ObjectTypeDefinition",
+    "fields": [
+      {
+        "_kind": "FieldDef",
+        "name": {
+          "_kind": "Identifier",
+          "name": "mycircle",
+          "range": [
+            493,
+            501,
+          ],
+        },
+        "optional": false,
+        "range": [
+          493,
+          521,
+        ],
+        "type": {
+          "_kind": "TypeRef",
+          "asLiveObject": true,
+          "range": [
+            503,
+            521,
+          ],
+          "ref": {
+            "_kind": "TypeName",
+            "name": "Circle",
+            "range": [
+              514,
+              520,
+            ],
+          },
+        },
+      },
+      {
+        "_kind": "FieldDef",
+        "name": {
+          "_kind": "Identifier",
+          "name": "myrect",
+          "range": [
+            530,
+            536,
+          ],
+        },
+        "optional": false,
+        "range": [
+          530,
+          554,
+        ],
+        "type": {
+          "_kind": "TypeRef",
+          "asLiveObject": true,
+          "range": [
+            538,
+            554,
+          ],
+          "ref": {
+            "_kind": "TypeName",
+            "name": "Rect",
+            "range": [
+              549,
+              553,
+            ],
+          },
+        },
+      },
+    ],
+    "isStatic": false,
+    "name": {
+      "_kind": "TypeName",
+      "name": "Storage",
+      "range": [
+        440,
+        447,
+      ],
+    },
+    "range": [
+      435,
+      562,
+    ],
+  },
+}
+`;
