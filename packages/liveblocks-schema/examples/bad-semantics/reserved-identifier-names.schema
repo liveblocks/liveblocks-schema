@@ -2,3 +2,16 @@ type Storage {
   liveblocksType: String
   ^^^^^^^^^^^^^^ Identifier 'liveblocksType' is reserved
 }
+---
+type Storage {
+  a: { b: { liveblocksType: String } }
+            ^^^^^^^^^^^^^^ Identifier 'liveblocksType' is reserved
+}
+---
+type Foo { liveblocksType: String }
+           ^^^^^^^^^^^^^^ Identifier 'liveblocksType' is reserved
+type Storage { foo: Foo }
+---
+type Foo { a: { liveblocksType: String } }
+                ^^^^^^^^^^^^^^ Identifier 'liveblocksType' is reserved
+type Storage { foo: Foo }
