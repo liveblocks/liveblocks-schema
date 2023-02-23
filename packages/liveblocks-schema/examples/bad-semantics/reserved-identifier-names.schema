@@ -1,0 +1,4 @@
+type Storage {
+  liveblocksType: String
+  ^^^^^^^^^^^^^^ Identifier 'liveblocksType' is reserved
+}
