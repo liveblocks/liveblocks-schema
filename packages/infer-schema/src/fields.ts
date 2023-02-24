@@ -1,6 +1,6 @@
 import { AST } from "@liveblocks/schema";
 
-import type { ChildContext } from "./inference";
+import type { InferContext, MergeOptions } from "./inference";
 import type { JsonObject, PlainLsonFields } from "./plainLson";
 import type { InferredSchema } from "./schema";
 import type { InferredTypeReference } from "./typeReference";
@@ -16,7 +16,7 @@ export type InferredFields = Record<string, InferredTypeReference>;
 
 export function inferLsonFields(
   fields: PlainLsonFields | JsonObject,
-  ctx: Omit<ChildContext, "field">
+  ctx: Omit<InferContext, "field">
 ): InferredFields {
   const fieldEntries = Object.entries(fields)
     .map(([key, value]) => {
@@ -33,7 +33,8 @@ export function inferLsonFields(
 
 export function mergeInferredFields(
   a: InferredFields,
-  b: InferredFields
+  b: InferredFields,
+  opts: MergeOptions = {}
 ): InferredFields | undefined {
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
 
@@ -52,7 +53,7 @@ export function mergeInferredFields(
       continue;
     }
 
-    const mergedValue = mergeInferredTypeReferences(valueA, valueB);
+    const mergedValue = mergeInferredTypeReferences(valueA, valueB, opts);
     if (!mergedValue) {
       return undefined;
     }

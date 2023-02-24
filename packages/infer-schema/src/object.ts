@@ -6,11 +6,13 @@ import {
   inferredFieldsToAst,
   mergeInferredFields,
 } from "./fields";
-import type { ChildContext, InferredType } from "./inference";
+import type { InferContext, InferredType, MergeOptions } from "./inference";
 import type { ScoredNames } from "./naming";
 import { generateNames, mergeScoredNames } from "./naming";
 import type { JsonObject, PlainLsonObject } from "./plainLson";
 import type { InferredSchema } from "./schema";
+import type { InferredUnionType } from "./union";
+import { unionOfInferredTypes } from "./union";
 import { invariant } from "./utils/invariant";
 import { isNotUndefined } from "./utils/typeGuards";
 import type { PartialBy } from "./utils/types";
@@ -25,7 +27,7 @@ export type InferredObjectType = {
 
 export function inferObjectType(
   value: JsonObject | PlainLsonObject,
-  ctx: ChildContext
+  ctx: InferContext
 ): InferredObjectType {
   const inferred: PartialBy<InferredObjectType, "fields"> = {
     names: generateNames(ctx),
@@ -45,19 +47,20 @@ export function inferObjectType(
 
 export function mergeInferredObjectTypes(
   a: InferredObjectType,
-  b: InferredObjectType
-): InferredObjectType | undefined {
+  b: InferredObjectType,
+  opts: MergeOptions = {}
+): InferredObjectType | InferredUnionType | undefined {
   // Cannot merge live and non-live objects
   if (a.live !== b.live) {
-    return undefined;
+    return opts.force ? unionOfInferredTypes([a, b], opts) : undefined;
   }
 
   // Never merge atomic objects
   if (a.atomic || b.atomic) {
-    return undefined;
+    return opts.force ? unionOfInferredTypes([a, b], opts) : undefined;
   }
 
-  const mergedFields = mergeInferredFields(a.fields, b.fields);
+  const mergedFields = mergeInferredFields(a.fields, b.fields, opts);
   if (!mergedFields) {
     return undefined;
   }

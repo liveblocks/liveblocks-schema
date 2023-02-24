@@ -1,10 +1,12 @@
 import { AST } from "@liveblocks/schema";
 
-import type { ChildContext, InferredType } from "./inference";
+import type { InferContext, InferredType, MergeOptions } from "./inference";
 import type { ScoredNames } from "./naming";
 import { generateNames, mergeScoredNames } from "./naming";
 import type { JsonScalar } from "./plainLson";
 import type { InferredSchema } from "./schema";
+import type { InferredUnionType } from "./union";
+import { unionOfInferredTypes } from "./union";
 
 export type InferredStringType = {
   type: "String";
@@ -45,8 +47,9 @@ export const INFERRED_SCALAR_TYPES: Set<InferredScalarType["type"]> = new Set([
 
 export function mergeInferredScalarTypes(
   a: InferredScalarType,
-  b: InferredScalarType
-): InferredScalarType | undefined {
+  b: InferredScalarType,
+  opts: MergeOptions = {}
+): InferredScalarType | InferredUnionType | undefined {
   if (a.type === b.type) {
     return {
       type: a.type,
@@ -67,12 +70,16 @@ export function mergeInferredScalarTypes(
     };
   }
 
+  if (opts.force) {
+    return unionOfInferredTypes([a, b]);
+  }
+
   return undefined;
 }
 
 export function inferScalarType(
   value: JsonScalar,
-  ctx: ChildContext
+  ctx: InferContext
 ): InferredScalarType {
   switch (typeof value) {
     case "string":

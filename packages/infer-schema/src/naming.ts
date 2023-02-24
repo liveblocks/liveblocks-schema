@@ -1,4 +1,4 @@
-import type { ChildContext } from "./inference";
+import type { InferContext } from "./inference";
 import { singular, ucFirst, words } from "./utils/strings";
 
 export type ScoredNames = Record<string, number>;
@@ -19,7 +19,7 @@ function fieldToTypeName(fieldName: string): string {
     .join("");
 }
 
-export function generateNames({ field, parent }: ChildContext): ScoredNames {
+export function generateNames({ field, parent }: InferContext): ScoredNames {
   const typeName = fieldToTypeName(field);
 
   const aliasEntries = Object.entries(parent.names)
