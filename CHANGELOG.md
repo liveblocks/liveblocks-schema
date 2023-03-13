@@ -1,3 +1,9 @@
+# 0.0.10
+
+- Add new top-level API for diagnostic reporting `getDiagnostics(schemaText)`,
+  useful in text editors and IDEs that don't need the parse result, just the
+  diagnostic error information (if any).
+
 # 0.0.9
 
 - Add `@liveblocks/infer-schema`, a library to help inferring a schema from
