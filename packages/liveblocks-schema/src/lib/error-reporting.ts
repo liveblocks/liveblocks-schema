@@ -205,8 +205,7 @@ export class ErrorReporter {
     yield "";
   }
 
-  *iterShortError(message: string, range?: Range): Generator<string> {
-    this.#hasErrors = true;
+  formatErrorMessage(message: string, range?: Range): string {
     const [startOffset] = range ?? [undefined, undefined];
 
     if (startOffset !== undefined) {
@@ -216,18 +215,15 @@ export class ErrorReporter {
       }
 
       const start = this.lineInfo(startOffset);
-      yield `${message} (at ${start.line1}:${start.column1})`;
+      return `${message} (at ${start.line1}:${start.column1})`;
     } else {
-      yield message;
+      return message;
     }
   }
 
-  getShortParseError(message: string, range?: Range): string {
-    return Array.from(this.iterShortError(message, range)).join("\n");
-  }
-
   throwParseError(message: string, range?: Range): never {
-    const err = new Error(this.getShortParseError(message, range));
+    this.#hasErrors = true;
+    const err = new Error(this.formatErrorMessage(message, range));
     err.name = "ParseError";
     throw err;
   }
@@ -274,12 +270,9 @@ export class ErrorReporter {
     yield "";
   }
 
-  getShortSemanticError(title: string, range?: Range): string {
-    return Array.from(this.iterShortError(title, range)).join("\n");
-  }
-
   throwSemanticError(title: string, range?: Range): never {
-    const err = new Error(this.getShortSemanticError(title, range));
+    this.#hasErrors = true;
+    const err = new Error(this.formatErrorMessage(title, range));
     err.name = "SemanticError";
     throw err;
   }
