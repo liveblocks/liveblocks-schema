@@ -35,6 +35,51 @@ export type LineInfo = {
   column1: number; // 1-based column number
 };
 
+export type RichRange = [from: LineInfo, to: LineInfo];
+
+export type DiagnosticSource = "parser" | "checker";
+
+export type Severity = "error" | "warning" | "info";
+
+export type Diagnostic = {
+  source: DiagnosticSource;
+  severity: Severity;
+  range?: RichRange;
+  message: string;
+};
+
+function makeDiagnostic(
+  source: "parser" | "checker",
+  message: string,
+  range?: RichRange,
+  severity: Severity = "error"
+): Diagnostic {
+  return { source, severity, range, message };
+}
+
+function formatDiagnostic(diagnostic: Diagnostic): string {
+  const start =
+    diagnostic.range !== undefined ? diagnostic.range[0] : undefined;
+  if (start !== undefined) {
+    // Strip the trailing period from the message, if any
+    const message = diagnostic.message.endsWith(".")
+      ? diagnostic.message.slice(0, -1)
+      : diagnostic.message;
+    return `${message} (at ${start.line1}:${start.column1})`;
+  } else {
+    return diagnostic.message;
+  }
+}
+
+export class DiagnosticError extends Error {
+  diagnostic: Diagnostic;
+
+  constructor(diagnostic: Diagnostic) {
+    super(formatDiagnostic(diagnostic));
+    this.diagnostic = diagnostic;
+  }
+}
+
 /**
  * For a string like "foo\nbarbaz\nquxxx\n", builds: [4, 11, 17]
  */
@@ -100,6 +145,10 @@ export class ErrorReporter {
       this.#offsets = buildOffsetLUT(this.lines());
     }
     return this.#offsets;
+  }
+
+  toRichRange(range: Range): RichRange {
+    return [this.lineInfo(range[0]), this.lineInfo(range[1])];
   }
 
   lineInfo(offset: number): LineInfo {
@@ -205,27 +254,15 @@ export class ErrorReporter {
     yield "";
   }
 
-  formatErrorMessage(message: string, range?: Range): string {
-    const [startOffset] = range ?? [undefined, undefined];
-
-    if (startOffset !== undefined) {
-      // Strip the trailing period from the message, if any
-      if (message.endsWith(".")) {
-        message = message.slice(0, -1);
-      }
-
-      const start = this.lineInfo(startOffset);
-      return `${message} (at ${start.line1}:${start.column1})`;
-    } else {
-      return message;
-    }
-  }
-
   throwParseError(message: string, range?: Range): never {
     this.#hasErrors = true;
-    const err = new Error(this.formatErrorMessage(message, range));
-    err.name = "ParseError";
-    throw err;
+    throw new DiagnosticError(
+      makeDiagnostic(
+        "parser",
+        message,
+        range !== undefined ? this.toRichRange(range) : undefined
+      )
+    );
   }
 
   printParseError(message: string, range?: Range): void {
@@ -270,11 +307,15 @@ export class ErrorReporter {
     yield "";
   }
 
-  throwSemanticError(title: string, range?: Range): never {
+  throwSemanticError(message: string, range?: Range): never {
     this.#hasErrors = true;
-    const err = new Error(this.formatErrorMessage(title, range));
-    err.name = "SemanticError";
-    throw err;
+    throw new DiagnosticError(
+      makeDiagnostic(
+        "checker",
+        message,
+        range !== undefined ? this.toRichRange(range) : undefined
+      )
+    );
   }
 
   printSemanticError(
