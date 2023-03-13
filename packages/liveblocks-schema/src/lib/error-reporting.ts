@@ -29,13 +29,13 @@ export class Source {
   }
 }
 
-export type LineInfo = {
+export type Position = {
   offset: number;
   line1: number; // 1-based line number
   column1: number; // 1-based column number
 };
 
-export type RichRange = [from: LineInfo, to: LineInfo];
+export type PositionRange = [from: Position, to: Position];
 
 export type DiagnosticSource = "parser" | "checker";
 
@@ -44,14 +44,14 @@ export type Severity = "error" | "warning" | "info";
 export type Diagnostic = {
   source: DiagnosticSource;
   severity: Severity;
-  range?: RichRange;
+  range?: PositionRange;
   message: string;
 };
 
 function makeDiagnostic(
   source: "parser" | "checker",
   message: string,
-  range?: RichRange,
+  range?: PositionRange,
   severity: Severity = "error"
 ): Diagnostic {
   return { source, severity, range, message };
@@ -147,11 +147,7 @@ export class ErrorReporter {
     return this.#offsets;
   }
 
-  toRichRange(range: Range): RichRange {
-    return [this.lineInfo(range[0]), this.lineInfo(range[1])];
-  }
-
-  lineInfo(offset: number): LineInfo {
+  toPosition(offset: number): Position {
     const lines = this.lines();
     const offsets = this.offsets();
     const lineno0 = offsets.findIndex((eol) => offset < eol);
@@ -167,13 +163,17 @@ export class ErrorReporter {
     }
   }
 
+  toPositionRange(range: Range): PositionRange {
+    return [this.toPosition(range[0]), this.toPosition(range[1])];
+  }
+
   *iterAnnotateSourceLines(
     startOffset: number,
     endOffset: number
   ): Generator<string> {
     const lines = this.lines();
-    const start = this.lineInfo(startOffset);
-    const end = this.lineInfo(endOffset);
+    const start = this.toPosition(startOffset);
+    const end = this.toPosition(endOffset);
 
     // We want to show a bit of leading and trailing context from the
     // source file. To that end, we'll start at most 3 lines before the
@@ -260,7 +260,7 @@ export class ErrorReporter {
       makeDiagnostic(
         "parser",
         message,
-        range !== undefined ? this.toRichRange(range) : undefined
+        range !== undefined ? this.toPositionRange(range) : undefined
       )
     );
   }
@@ -313,7 +313,7 @@ export class ErrorReporter {
       makeDiagnostic(
         "checker",
         message,
-        range !== undefined ? this.toRichRange(range) : undefined
+        range !== undefined ? this.toPositionRange(range) : undefined
       )
     );
   }

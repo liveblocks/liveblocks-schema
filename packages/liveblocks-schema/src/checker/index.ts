@@ -114,8 +114,8 @@ class Context {
       return "???";
     }
 
-    const startLine = this.errorReporter.lineInfo(range[0]).line1;
-    const endLine = this.errorReporter.lineInfo(range[1]).line1;
+    const startLine = this.errorReporter.toPosition(range[0]).line1;
+    const endLine = this.errorReporter.toPosition(range[1]).line1;
     if (startLine === endLine) {
       return `${startLine}`;
     } else {
