@@ -42,7 +42,8 @@ export type DiagnosticSource = "parser" | "checker";
 export type Severity = "error" | "warning" | "info";
 
 export type Suggestion = {
-  title: string;
+  type: "replace";
+  message: string;
   value: string;
 };
 

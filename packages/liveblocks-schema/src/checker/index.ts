@@ -150,7 +150,8 @@ function formatReplaceSuggestions(
   }
 
   return suggestions.map((suggestion) => ({
-    title: `Replace with ${quote(suggestion)}`,
+    type: "replace",
+    message: `Replace with ${quote(suggestion)}`,
     value: suggestion,
   }));
 }

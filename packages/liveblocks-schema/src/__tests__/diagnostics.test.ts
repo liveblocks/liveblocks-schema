@@ -55,7 +55,13 @@ describe("diagnostic error reporting", () => {
           { offset: 27, line1: 1, column1: 28 },
         ],
         message: "Unknown type 'string'. Did you mean 'String'?",
-        suggestions: [{ title: "Replace with 'String'", value: "String" }],
+        suggestions: [
+          {
+            type: "replace",
+            message: "Replace with 'String'",
+            value: "String",
+          },
+        ],
       },
     ]);
   });
