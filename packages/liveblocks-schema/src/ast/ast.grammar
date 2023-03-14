@@ -23,6 +23,7 @@
     # | ScalarDefinition
     | @BuiltInScalar
     | ObjectLiteralExpr
+    | LiveListExpr
     | TypeRef
 
 
@@ -53,6 +54,11 @@ TypeName:
 # e.g. "x" or "y" -- used in field positions
 Identifier:
     name  string
+
+
+# e.g. LiveList<...>
+LiveListExpr:
+    of  @TypeExpr
 
 
 # e.g. { cx: Number; cy: Number; r: Float }
