@@ -447,8 +447,8 @@ function decideStaticOrLive(doc: Document, context: Context): void {
   const staticObjRefs = new Map<string, TypeRef>();
   const liveObjRefs = new Map<string, TypeRef | null>();
 
-  // First, if a definition uses a Live structure in its definition, it must be
-  // a live type itself
+  // First, if a definition uses a Live construct somewhere in its definition,
+  // it must be a live type itself
   for (const def of context.registeredTypes.values()) {
     if (def._kind !== "ObjectTypeDefinition") {
       continue;
@@ -458,6 +458,11 @@ function decideStaticOrLive(doc: Document, context: Context): void {
       visit(
         def,
         {
+          LiveListExpr: () => {
+            liveObjRefs.set(def.name.name, null);
+            throw "break";
+          },
+
           TypeRef: (ref) => {
             if (ref.asLiveObject) {
               liveObjRefs.set(def.name.name, null);
