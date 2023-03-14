@@ -41,20 +41,27 @@ export type DiagnosticSource = "parser" | "checker";
 
 export type Severity = "error" | "warning" | "info";
 
+export type Suggestion = {
+  title: string;
+  value: string;
+};
+
 export type Diagnostic = {
   source: DiagnosticSource;
   severity: Severity;
   range?: PositionRange;
   message: string;
+  suggestions?: Suggestion[];
 };
 
 function makeDiagnostic(
   source: "parser" | "checker",
   message: string,
   range?: PositionRange,
-  severity: Severity = "error"
+  severity: Severity = "error",
+  suggestions?: Suggestion[]
 ): Diagnostic {
-  return { source, severity, range, message };
+  return { source, severity, range, message, suggestions };
 }
 
 function formatDiagnostic(diagnostic: Diagnostic): string {
@@ -254,13 +261,19 @@ export class ErrorReporter {
     yield "";
   }
 
-  throwParseError(message: string, range?: Range): never {
+  throwParseError(
+    message: string,
+    range?: Range,
+    suggestions?: Suggestion[]
+  ): never {
     this.#hasErrors = true;
     throw new DiagnosticError(
       makeDiagnostic(
         "parser",
         message,
-        range !== undefined ? this.toPositionRange(range) : undefined
+        range !== undefined ? this.toPositionRange(range) : undefined,
+        undefined,
+        suggestions
       )
     );
   }
@@ -307,13 +320,19 @@ export class ErrorReporter {
     yield "";
   }
 
-  throwSemanticError(message: string, range?: Range): never {
+  throwSemanticError(
+    message: string,
+    range?: Range,
+    suggestions?: Suggestion[]
+  ): never {
     this.#hasErrors = true;
     throw new DiagnosticError(
       makeDiagnostic(
         "checker",
         message,
-        range !== undefined ? this.toPositionRange(range) : undefined
+        range !== undefined ? this.toPositionRange(range) : undefined,
+        undefined,
+        suggestions
       )
     );
   }

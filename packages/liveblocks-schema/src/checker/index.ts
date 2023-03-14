@@ -13,7 +13,7 @@ import type {
 import { isBuiltInScalar, visit } from "../ast";
 import { assertNever } from "../lib/assert";
 import { didyoumean as dym } from "../lib/didyoumean";
-import type { ErrorReporter } from "../lib/error-reporting";
+import type { ErrorReporter, Suggestion } from "../lib/error-reporting";
 
 function quote(value: string): string {
   return `'${value.replace(/'/g, "\\'")}'`;
@@ -135,11 +135,24 @@ class Context {
     return def;
   }
 
-  report(title: string, range?: Range): void {
+  report(title: string, range?: Range, suggestions?: Suggestion[]): void {
     // FIXME(nvie) Don't throw on the first error! Collect a few (max 3?) and then throw as one error.
     // this.errorReporter.printSemanticError(title, description, range);
-    this.errorReporter.throwSemanticError(title, range);
+    this.errorReporter.throwSemanticError(title, range, suggestions);
   }
+}
+
+function formatReplaceSuggestions(
+  suggestions: string[]
+): Suggestion[] | undefined {
+  if (suggestions.length === 0) {
+    return;
+  }
+
+  return suggestions.map((suggestion) => ({
+    title: `Replace with ${quote(suggestion)}`,
+    value: suggestion,
+  }));
 }
 
 function dupes<T>(items: Iterable<T>, keyFn: (item: T) => string): [T, T][] {
@@ -227,9 +240,11 @@ function checkTypeNameExists(
   if (context.registeredTypes.has(node.name)) {
     return;
   }
+  const suggestions = suggestor(node.name);
   context.report(
     didyoumeanify(`Unknown type ${quote(node.name)}`, suggestor(node.name)),
-    node.range
+    node.range,
+    formatReplaceSuggestions(suggestions)
   );
 }
 
@@ -249,24 +264,25 @@ function checkTypeRefTarget(node: TypeRef, context: Context): void {
 function checkTypeNameIsObjectType(node: TypeName, context: Context): void {
   const def = context.registeredTypes.get(node.name);
   if (!def) {
+    const suggestions = context.suggestors.objectTypeName(node.name);
     context.report(
-      didyoumeanify(
-        `Unknown object type ${quote(node.name)}`,
-        context.suggestors.objectTypeName(node.name)
-      ),
-      node.range
+      didyoumeanify(`Unknown object type ${quote(node.name)}`, suggestions),
+      node.range,
+      formatReplaceSuggestions(suggestions)
     );
     return;
   }
 
   // Check that the payload of a LiveObject type is an object type
   if (def._kind !== "ObjectTypeDefinition") {
+    const suggestions = context.suggestors.objectTypeName(node.name);
     context.report(
       didyoumeanify(
         `Type ${quote(node.name)} is not an object type`,
-        context.suggestors.objectTypeName(node.name)
+        suggestions
       ),
-      node.range
+      node.range,
+      formatReplaceSuggestions(suggestions)
     );
     return undefined;
   }
