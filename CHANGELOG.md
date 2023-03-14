@@ -3,6 +3,8 @@
 - Add new top-level API for diagnostic reporting `getDiagnostics(schemaText)`,
   useful in text editors and IDEs that don't need the parse result, just the
   diagnostic error information (if any).
+- Fix: parser now correctly rejects keywords used in type name positions, e.g.
+  `LiveObject<LiveObject>`
 
 # 0.0.9
 
