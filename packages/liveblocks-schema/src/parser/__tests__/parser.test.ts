@@ -51,6 +51,8 @@ describe("syntactic parser", () => {
         mycircle?: LiveObject<Bar>
         //                    ^^^ Will parse the syntax, even though semantically incorrect
         someField: _undefinedThing_
+        list: LiveList<Bar>
+        //             ^^^ Will parse the syntax, even though semantically incorrect
       }
 
       type abc {}         // Lowercased type names are syntactically valid
@@ -82,6 +84,12 @@ describe("syntactic parser", () => {
               ast.identifier("someField"),
               false,
               ast.typeRef(ast.typeName("_undefinedThing_"), false)
+            ),
+
+            ast.fieldDef(
+              ast.identifier("list"),
+              false,
+              ast.liveListExpr(ast.typeRef(ast.typeName("Bar"), false))
             ),
           ],
           null,
@@ -123,6 +131,7 @@ describe("syntactic parser", () => {
         mycircle?: LiveObject<Bar>
         //                    ^^^ Will parse the syntax, even though semantically incorrect
         someField: _undefinedThing_
+        list: LiveList<LiveList<Bar>>
       }
 
       type abc {}         // Lowercased type names are syntactically valid

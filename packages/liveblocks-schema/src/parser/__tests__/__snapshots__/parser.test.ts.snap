@@ -501,6 +501,54 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
             },
           },
         },
+        {
+          "_kind": "FieldDef",
+          "leadingComment": null,
+          "name": {
+            "_kind": "Identifier",
+            "name": "list",
+            "range": [
+              608,
+              612,
+            ],
+          },
+          "optional": false,
+          "range": [
+            608,
+            637,
+          ],
+          "trailingComment": null,
+          "type": {
+            "_kind": "LiveListExpr",
+            "of": {
+              "_kind": "LiveListExpr",
+              "of": {
+                "_kind": "TypeRef",
+                "asLiveObject": false,
+                "range": [
+                  632,
+                  635,
+                ],
+                "ref": {
+                  "_kind": "TypeName",
+                  "name": "Bar",
+                  "range": [
+                    632,
+                    635,
+                  ],
+                },
+              },
+              "range": [
+                623,
+                636,
+              ],
+            },
+            "range": [
+              614,
+              637,
+            ],
+          },
+        },
       ],
       "isStatic": false,
       "leadingComment": null,
@@ -514,7 +562,7 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
       },
       "range": [
         281,
-        607,
+        645,
       ],
     },
     {
@@ -526,19 +574,19 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
         "_kind": "TypeName",
         "name": "abc",
         "range": [
-          620,
-          623,
+          658,
+          661,
         ],
       },
       "range": [
-        615,
-        683,
+        653,
+        721,
       ],
     },
   ],
   "range": [
     7,
-    683,
+    721,
   ],
 }
 `;
