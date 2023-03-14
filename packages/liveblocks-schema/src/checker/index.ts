@@ -338,6 +338,10 @@ function checkNoForbiddenRefs(
       }
       break;
 
+    case "LiveListExpr":
+      checkNoForbiddenRefs(node.of, context, forbidden);
+      break;
+
     case "TypeRef": {
       if (forbidden.has(node.ref.name)) {
         context.report(

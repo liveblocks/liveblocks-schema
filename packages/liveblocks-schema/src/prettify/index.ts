@@ -46,6 +46,9 @@ export function prettify(node: Node): string {
     case "ObjectLiteralExpr":
       return `{ ${node.fields.map(prettify).join(", ")} }`;
 
+    case "LiveListExpr":
+      return `LiveList<${prettify(node.of)}>`;
+
     case "Identifier":
       return node.name;
 
