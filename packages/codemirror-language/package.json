@@ -1,0 +1,36 @@
+{
+  "name": "@liveblocks/codemirror-language",
+  "version": "0.0.9",
+  "description": "CodeMirror language for the Liveblocks schema language",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint src/",
+    "format": "eslint --fix src/; prettier --write src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liveblocks/liveblocks-schema.git"
+  },
+  "keywords": [
+    "liveblocks",
+    "schema",
+    "language",
+    "codemirror"
+  ],
+  "dependencies": {
+    "@codemirror/language": "^6.6.0",
+    "@lezer/highlight": "^1.1.3",
+    "@lezer/lr": "^1.3.3"
+  },
+  "devDependencies": {
+    "@lezer/generator": "^1.2.2",
+    "@liveblocks/eslint-config": "*"
+  },
+  "sideEffects": false
+}
