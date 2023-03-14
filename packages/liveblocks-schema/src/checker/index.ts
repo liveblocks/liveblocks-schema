@@ -200,6 +200,11 @@ function checkObjectLiteralExpr(
         "Cannot use a LiveObject reference inside an object literal",
         field.type.range
       );
+    } else if (field.type._kind === "LiveListExpr") {
+      context.report(
+        "Cannot use a LiveList reference inside an object literal",
+        field.type.range
+      );
     }
   }
 }
