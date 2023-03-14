@@ -85,7 +85,7 @@ Identifier "<identifier>"
 // e.g. "Circle" or "Person" -- used in type positions
 // Similar to Identifier, but there are different semantic validation rules that apply
 TypeName "<type name>"
-  = !( LiveObjectKeyword ) name:$( WORD_CHAR+ ) !WORD_CHAR _
+  = !( LiveListKeyword / LiveObjectKeyword ) name:$( WORD_CHAR+ ) !WORD_CHAR _
     { return ast.typeName(name, rng()) }
 
 
@@ -156,6 +156,10 @@ BooleanType
     { return ast.booleanType(rng()) }
 
 
+LiveListKeyword
+  = _ @$'LiveList' EOK
+
+
 LiveObjectKeyword
   = _ @$'LiveObject' EOK
 
@@ -163,6 +167,7 @@ LiveObjectKeyword
 TypeExpr
   = ObjectLiteralExpr
   / BuiltInScalar
+  / LiveListExpr
   / TypeRef
   // / Literal
 
@@ -172,6 +177,11 @@ BuiltInScalar
   / IntType
   / FloatType
   / BooleanType
+
+
+LiveListExpr
+  = LiveListKeyword LT expr:TypeExpr GT
+    { return ast.liveListExpr(expr, rng()) }
 
 
 TypeRef
