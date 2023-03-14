@@ -1,0 +1,3 @@
+type Foo { bad: LiveList<"literal"> }
+                         ^ Expected <type name> but "\"" found
+                         # This should be supported when we add string literal support!
