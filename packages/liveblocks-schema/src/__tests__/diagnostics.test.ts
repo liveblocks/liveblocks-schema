@@ -44,4 +44,19 @@ describe("diagnostic error reporting", () => {
       },
     ]);
   });
+
+  it("getDiagnostics returns suggestions for typos", () => {
+    expect(getDiagnostics("type Storage { foo?: string }")).toEqual([
+      {
+        source: "checker",
+        severity: "error",
+        range: [
+          { offset: 21, line1: 1, column1: 22 },
+          { offset: 27, line1: 1, column1: 28 },
+        ],
+        message: "Unknown type 'string'. Did you mean 'String'?",
+        suggestions: [{ title: "Replace with 'String'", value: "String" }],
+      },
+    ]);
+  });
 });
