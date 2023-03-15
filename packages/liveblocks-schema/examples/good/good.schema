@@ -22,7 +22,7 @@ type Circle {
 }
 
 type Storage {
-  // shapes: LiveList<Shape>
+  circles: LiveList<LiveObject<Circle>>
   mycircle: LiveObject<Circle>
   myrect: LiveObject<Rect>
 }
