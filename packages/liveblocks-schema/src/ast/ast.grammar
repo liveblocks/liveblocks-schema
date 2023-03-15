@@ -21,10 +21,16 @@
 @TypeExpr:
     # | @Literal
     # | ScalarDefinition
+    | ArrayExpr
     | @BuiltInScalar
     | ObjectLiteralExpr
     | LiveListExpr
     | TypeRef
+
+
+# e.g. "String[]", or "Int[][]", etc.
+ArrayExpr:
+    of  @TypeExpr
 
 
 # Reference to a custom, user-defined, type. Not a built-in. Things like
