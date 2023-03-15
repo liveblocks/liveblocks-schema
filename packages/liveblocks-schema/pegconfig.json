@@ -3,6 +3,8 @@
     "customHeader": "import * as ast from \"../ast\";\n"
   },
   "returnTypes": {
+    "ArrayExpr": "ast.ArrayExpr",
+    "ArrayExprList": "ast.ArrayExpr[]",
     "BooleanType": "ast.BooleanType",
     "BooleanTypeList": "ast.BooleanType[]",
     "BuiltInScalar": "ast.BuiltInScalar",

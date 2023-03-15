@@ -39,6 +39,7 @@ export function isDefinition(node: Node): node is Definition {
 
 export function isTypeExpr(node: Node): node is TypeExpr {
   return (
+    node._kind === "ArrayExpr" ||
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "LiveListExpr" ||
     node._kind === "TypeRef" ||
@@ -51,6 +52,7 @@ export type BuiltInScalar = StringType | IntType | FloatType | BooleanType;
 export type Definition = ObjectTypeDefinition;
 
 export type TypeExpr =
+  | ArrayExpr
   | BuiltInScalar
   | ObjectLiteralExpr
   | LiveListExpr
@@ -59,6 +61,7 @@ export type TypeExpr =
 export type Range = [number, number];
 
 export type Node =
+  | ArrayExpr
   | BooleanType
   | Document
   | FieldDef
@@ -83,6 +86,7 @@ export function isRange(thing: unknown): thing is Range {
 
 export function isNode(node: Node): node is Node {
   return (
+    node._kind === "ArrayExpr" ||
     node._kind === "BooleanType" ||
     node._kind === "Document" ||
     node._kind === "FieldDef" ||
@@ -97,6 +101,12 @@ export function isNode(node: Node): node is Node {
     node._kind === "TypeRef"
   );
 }
+
+export type ArrayExpr = {
+  _kind: "ArrayExpr";
+  of: TypeExpr;
+  range: Range;
+};
 
 export type BooleanType = {
   _kind: "BooleanType";
@@ -177,6 +187,24 @@ export type TypeRef = {
   asLiveObject: boolean;
   range: Range;
 };
+
+export function arrayExpr(of: TypeExpr, range: Range = [0, 0]): ArrayExpr {
+  DEBUG &&
+    (() => {
+      assert(
+        isTypeExpr(of),
+        `Invalid value for "of" arg in "ArrayExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
+          of
+        )}`
+      );
+      assertRange(range, "ArrayExpr");
+    })();
+  return {
+    _kind: "ArrayExpr",
+    of,
+    range,
+  };
+}
 
 export function booleanType(range: Range = [0, 0]): BooleanType {
   DEBUG &&
@@ -453,6 +481,7 @@ export function typeRef(
 }
 
 interface Visitor<TContext> {
+  ArrayExpr?(node: ArrayExpr, context: TContext): void;
   BooleanType?(node: BooleanType, context: TContext): void;
   Document?(node: Document, context: TContext): void;
   FieldDef?(node: FieldDef, context: TContext): void;
@@ -482,6 +511,11 @@ export function visit<TNode extends Node, TContext>(
   context?: TContext
 ): TNode {
   switch (node._kind) {
+    case "ArrayExpr":
+      visitor.ArrayExpr?.(node, context);
+      visit(node.of, visitor, context);
+      break;
+
     case "BooleanType":
       visitor.BooleanType?.(node, context);
       break;
