@@ -15,7 +15,7 @@ type Qux {}
 ---
 type Storage {
   a: { b: { c: { d: LiveList<Foo> } } }
-                    ^^^^^^^^^^^^^ Cannot use a LiveList reference inside an object literal
+                    ^^^^^^^^^^^^^ Cannot use LiveList inside an object literal
 }
 type Foo {}
 ---

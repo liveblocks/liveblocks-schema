@@ -1,4 +1,5 @@
 import type {
+  ArrayExpr,
   Definition,
   Document,
   FieldDef,
@@ -187,6 +188,14 @@ function checkNoDuplicateFields(fieldDefs: FieldDef[], context: Context): void {
   }
 }
 
+function ensureNoLiveType(expr: TypeExpr, where: string, context: Context) {
+  if (expr._kind === "TypeRef" && expr.asLiveObject) {
+    context.report(`Cannot use LiveObject ${where}`, expr.range);
+  } else if (expr._kind === "LiveListExpr") {
+    context.report(`Cannot use LiveList ${where}`, expr.range);
+  }
+}
+
 function checkObjectLiteralExpr(
   obj: ObjectLiteralExpr,
   context: Context
@@ -195,18 +204,12 @@ function checkObjectLiteralExpr(
 
   // Check that none of the fields here use a "live" reference
   for (const field of obj.fields) {
-    if (field.type._kind === "TypeRef" && field.type.asLiveObject) {
-      context.report(
-        "Cannot use a LiveObject reference inside an object literal",
-        field.type.range
-      );
-    } else if (field.type._kind === "LiveListExpr") {
-      context.report(
-        "Cannot use a LiveList reference inside an object literal",
-        field.type.range
-      );
-    }
+    ensureNoLiveType(field.type, "inside an object literal", context);
   }
+}
+
+function checkArrayExpr(arr: ArrayExpr, context: Context): void {
+  ensureNoLiveType(arr.of, "inside an array", context);
 }
 
 function checkTypeName(node: TypeName, context: Context): void {
@@ -579,6 +582,7 @@ export function check(
     doc,
     {
       Identifier: checkIdentifier,
+      ArrayExpr: checkArrayExpr,
       ObjectLiteralExpr: checkObjectLiteralExpr,
       ObjectTypeDefinition: checkObjectTypeDefinition,
       TypeName: checkTypeName,

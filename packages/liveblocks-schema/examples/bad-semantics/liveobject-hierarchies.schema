@@ -15,7 +15,7 @@ type Qux {}
 ---
 type Storage {
   a: { b: { c: { d: LiveObject<Foo> } } }
-                    ^^^^^^^^^^^^^^^ Cannot use a LiveObject reference inside an object literal
+                    ^^^^^^^^^^^^^^^ Cannot use LiveObject inside an object literal
 }
 type Foo {}
 ---
@@ -25,3 +25,7 @@ type Storage {
 }
 type Foo { x: LiveObject<Bar> }
 type Bar {}
+---
+type Bar {}
+type Storage { bad: LiveObject<Bar>[] }
+                    ^ Cannot use LiveObject inside an array
