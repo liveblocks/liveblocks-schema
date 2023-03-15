@@ -343,6 +343,7 @@ function checkNoForbiddenRefs(
       }
       break;
 
+    case "ArrayExpr":
     case "LiveListExpr":
       checkNoForbiddenRefs(node.of, context, forbidden);
       break;
