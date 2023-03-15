@@ -165,6 +165,19 @@ LiveObjectKeyword
 
 
 TypeExpr
+  = expr:TypeExprBase brackets:( LSQUARE RSQUARE { return rng() })*
+    {
+      let node = expr;
+      for (const bracket of brackets) {
+        const [start, _] = node.range
+        const [___, end] = bracket
+        node = ast.arrayExpr(node, [start, end])
+      }
+      return node;
+    }
+
+
+TypeExprBase
   = ObjectLiteralExpr
   / BuiltInScalar
   / LiveListExpr
@@ -222,6 +235,8 @@ TYPE "keyword \"type\""
 
 LCURLY     = __ @$'{' __
 RCURLY     = __ @$'}' _
+LSQUARE    = __ @$'[' __
+RSQUARE    = __ @$']' _
 //                  ^ NOTE: We cannot generically eat newlines after RCURLY, because they're significant
 GT         = __ @$'>' _
 //                  ^ NOTE: We cannot generically eat newlines after GT, because they're significant

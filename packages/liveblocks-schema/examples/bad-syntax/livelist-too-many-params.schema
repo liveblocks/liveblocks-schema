@@ -1,4 +1,4 @@
 type X {
   a: LiveList<Int, Int>       // Too many params
-                 ^ Expected ">" but "," found
+                 ^ Expected ">" or "[" but "," found
 }

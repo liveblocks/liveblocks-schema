@@ -119,9 +119,9 @@ describe("syntactic parser", () => {
         cx: Float
         cy: Float
         r: Float
-        fill?: Color
+        fill?: Color[]
         stroke?: Color
-        third?: { r: Int, g: Int, b: Int }
+        third?: { r: Int, g: Int, b: Int }[]
       }
 
       type Foo {}
@@ -131,7 +131,7 @@ describe("syntactic parser", () => {
         mycircle?: LiveObject<Bar>
         //                    ^^^ Will parse the syntax, even though semantically incorrect
         someField: _undefinedThing_
-        list: LiveList<LiveList<Bar>>
+        list: LiveList<LiveList<Bar[][]>>
       }
 
       type abc {}         // Lowercased type names are syntactically valid
