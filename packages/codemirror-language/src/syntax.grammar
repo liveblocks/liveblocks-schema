@@ -1,26 +1,82 @@
-@top Program { expression* }
+// TODO: Styling: Differientate Name and String (built-in types)?
+// TODO: Styling: Fix commas in generic types
 
-@skip { space | LineComment }
+@skip {
+  whitespace | Comment
+}
 
-expression {
-  Identifier |
-  String |
-  Boolean |
-  Application { "(" expression* ")" }
+@precedence {
+  precedence
+}
+
+@top Document {
+  definition+
+}
+
+definition {
+  ObjectTypeDefinition
+}
+
+TypeKeyword {
+  keyword<"type">
+}
+
+Name {
+  name
+}
+
+NamedType {
+  capitalizedName
+}
+
+GenericType {
+  NamedType "<" list<Type> ">"
+}
+
+ArrayType {
+  NamedType "[]"+
+}
+
+Type {
+  NamedType | GenericType | ArrayType | FieldsDefinition
+}
+
+NamedTypeDeclaration {
+  capitalizedName
+}
+
+ObjectTypeDefinition {
+  TypeKeyword NamedTypeDeclaration "="? FieldsDefinition
+}
+
+FieldsDefinition {
+  block<ValueDefinition+>
+}
+
+ValueDefinition {
+  Name "?"? ":" Type separator?
 }
 
 @tokens {
-  Identifier { $[a-zA-Z_\-0-9]+ }
+  Comment { ("#" | "//") ![\n]* }
+  
+  name { $[_A-Za-z] $[_0-9A-Za-z]* }
+  
+  capitalizedName { $[_A-Z] $[_0-9A-Za-z]* }
 
-  String { '"' (!["\\] | "\\" _)* '"' }
+  separator { comma | ";" }
 
-  Boolean { "#t" | "#f" }
+  comma { "," }
 
-  LineComment { ";" ![\n]* }
+  whitespace { @whitespace+ }
 
-  space { $[ \t\n\r]+ }
-
-  "(" ")"
+  "{" "}" "<" ">" "[" "]" ":"
 }
+
+keyword<term> { @specialize[@name={term}]<name, term> }
+
+block<expression> { !precedence "{" expression "}" }
+
+list<value> { !precedence value (comma value)* }
 
 @detectDelim

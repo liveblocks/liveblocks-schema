@@ -1,0 +1,22 @@
+# Comment
+// Comment
+
+type Name = {
+  a: Name
+  b?: Name
+}
+
+type Name {
+  a: Name,
+  b: Name; # Comment
+  c: {
+    a: Generic<Name>
+    b: Generic<Name, Name, Name>, // Comment
+    c: Generic<
+      Name, Name,
+      Name
+    >
+  },
+  d: Name[]
+  e?: Name[][]
+}

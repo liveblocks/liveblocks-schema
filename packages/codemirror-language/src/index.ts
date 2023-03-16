@@ -10,29 +10,51 @@ import { styleTags, tags as t } from "@lezer/highlight";
 
 import { parser } from "./syntax.grammar";
 
-export const LiveblocksSchemaLanguage = LRLanguage.define({
+const parentheses = "( )";
+const braces = "{ }";
+const angleBrackets = "< >";
+const punctuations = `${parentheses} ${braces} ${angleBrackets} : = ?`;
+const blocks = `FieldsDefinition ${braces}`;
+const generic = `GenericType ${angleBrackets}`;
+
+export const LiveblocksSchema = LRLanguage.define({
+  name: "liveblocks-schema",
   parser: parser.configure({
     props: [
       indentNodeProp.add({
-        Application: delimitedIndent({ closing: ")", align: false }),
+        [blocks]: delimitedIndent({ closing: "}", align: true }),
+      }),
+      indentNodeProp.add({
+        [generic]: delimitedIndent({ closing: ">", align: false }),
       }),
       foldNodeProp.add({
-        Application: foldInside,
+        [blocks]: foldInside,
       }),
       styleTags({
-        Identifier: t.variableName,
-        Boolean: t.bool,
-        String: t.string,
-        LineComment: t.lineComment,
-        "( )": t.paren,
+        Comment: t.lineComment,
+        Name: t.name,
+        NamedType: t.typeName,
+        GenericType: t.special(t.typeName),
+        NamedTypeDeclaration: t.variableName,
+        type: t.keyword,
+        separator: t.separator,
+        comma: t.separator,
+        [parentheses]: t.paren,
+        [braces]: t.brace,
+        [angleBrackets]: t.angleBracket,
+        [punctuations]: t.punctuation,
       }),
     ],
   }),
   languageData: {
-    commentTokens: { line: ";" },
+    commentTokens: { line: "#" },
+    closeBrackets: { brackets: ["{", "<", "[", '"'] },
+    indentOnInput: /^\s*(\{|\})$/,
   },
 });
 
-export function liveblocksSchemaLanguage(): LanguageSupport {
-  return new LanguageSupport(LiveblocksSchemaLanguage);
+export function liveblocksSchema(): LanguageSupport {
+  return new LanguageSupport(LiveblocksSchema);
 }
+
+export { linter } from "./linter";
