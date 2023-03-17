@@ -7,8 +7,8 @@ export const linter = lint(
     const code = view.state.sliceDoc();
     const diagnostics: Diagnostic[] = getDiagnostics(code).map((diagnostic) => {
       return {
-        from: diagnostic.range?.[0].offset ?? 0,
-        to: diagnostic.range?.[1].offset ?? code.length,
+        from: diagnostic.range[0].offset,
+        to: diagnostic.range[1].offset,
         source: diagnostic.source,
         message: diagnostic.message,
         severity: diagnostic.severity,
