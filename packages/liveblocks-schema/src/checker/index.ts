@@ -351,6 +351,11 @@ function checkNoForbiddenRefs(
       checkNoForbiddenRefs(node.ofType, context, forbidden);
       break;
 
+    case "LiveMapExpr":
+      checkNoForbiddenRefs(node.keyType, context, forbidden);
+      checkNoForbiddenRefs(node.valueType, context, forbidden);
+      break;
+
     case "TypeRef": {
       if (forbidden.has(node.ref.name)) {
         context.report(

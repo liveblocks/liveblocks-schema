@@ -52,6 +52,9 @@ export function prettify(node: Node): string {
     case "LiveListExpr":
       return `LiveList<${prettify(node.ofType)}>`;
 
+    case "LiveMapExpr":
+      return `LiveMap<${prettify(node.keyType)}, ${prettify(node.valueType)}>`;
+
     case "Identifier":
       return node.name;
 
