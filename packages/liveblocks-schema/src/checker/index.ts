@@ -143,13 +143,7 @@ class Context {
   }
 }
 
-function formatReplaceSuggestions(
-  suggestions: string[]
-): Suggestion[] | undefined {
-  if (suggestions.length === 0) {
-    return;
-  }
-
+function formatReplaceSuggestions(suggestions: string[]): Suggestion[] {
   return suggestions.map((suggestion) => ({
     type: "replace",
     name: suggestion,
