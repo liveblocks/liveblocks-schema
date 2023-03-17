@@ -29,7 +29,7 @@ export const linter = lint(
                 apply: (view, from, to) => {
                   view.dispatch({
                     changes: {
-                      from,
+                      from: to,
                       insert: `\n\ntype ${suggestion.name} {\n  # Add fields here\n}\n`,
                     },
                   });
