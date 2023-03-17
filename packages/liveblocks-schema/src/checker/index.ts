@@ -136,7 +136,7 @@ class Context {
     return def;
   }
 
-  report(title: string, range?: Range, suggestions?: Suggestion[]): void {
+  report(title: string, range: Range, suggestions?: Suggestion[]): void {
     // FIXME(nvie) Don't throw on the first error! Collect a few (max 3?) and then throw as one error.
     // this.errorReporter.printSemanticError(title, description, range);
     this.errorReporter.throwSemanticError(title, range, suggestions);
@@ -592,7 +592,8 @@ export function check(
 
   if (!context.registeredTypes.has("Storage")) {
     context.errorReporter.throwSemanticError(
-      "Missing root object type definition named 'Storage'"
+      "Missing root object type definition named 'Storage'",
+      doc.range
     );
   }
 

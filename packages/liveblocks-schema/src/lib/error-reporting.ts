@@ -263,7 +263,7 @@ export class ErrorReporter {
 
   throwParseError(
     message: string,
-    range?: Range,
+    range: Range,
     suggestions?: Suggestion[]
   ): never {
     this.#hasErrors = true;
@@ -271,7 +271,7 @@ export class ErrorReporter {
       makeDiagnostic(
         "parser",
         message,
-        range !== undefined ? this.toPositionRange(range) : undefined,
+        this.toPositionRange(range),
         undefined,
         suggestions
       )
@@ -322,7 +322,7 @@ export class ErrorReporter {
 
   throwSemanticError(
     message: string,
-    range?: Range,
+    range: Range,
     suggestions?: Suggestion[]
   ): never {
     this.#hasErrors = true;
@@ -330,7 +330,7 @@ export class ErrorReporter {
       makeDiagnostic(
         "checker",
         message,
-        range !== undefined ? this.toPositionRange(range) : undefined,
+        this.toPositionRange(range),
         undefined,
         suggestions
       )
