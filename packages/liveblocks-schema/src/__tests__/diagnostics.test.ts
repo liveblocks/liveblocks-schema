@@ -34,13 +34,16 @@ describe("diagnostic error reporting", () => {
     ]);
   });
 
-  it("getDiagnostics returns list of issues on schema with semantic errors without range", () => {
-    expect(getDiagnostics("type Henk {}")).toEqual([
+  it("getDiagnostics returns list of issues on schema with semantic errors on entire document", () => {
+    expect(getDiagnostics("type DefinitelyNotNamedStorage {\n}\n")).toEqual([
       {
         source: "checker",
         severity: "error",
         message: "Missing root object type definition named 'Storage'",
-        range: undefined,
+        range: [
+          { column1: 1, line1: 1, offset: 0 },
+          { column1: 2, line1: 2, offset: 34 },
+        ],
       },
     ]);
   });
