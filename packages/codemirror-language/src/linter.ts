@@ -19,7 +19,19 @@ export const linter = lint(
                 name: "Replace",
                 apply: (view, from, to) => {
                   view.dispatch({
-                    changes: { from, to, insert: suggestion.value },
+                    changes: { from, to, insert: suggestion.name },
+                  });
+                },
+              };
+            } else if (suggestion.type === "add-object-type-def") {
+              return {
+                name: "Add definition",
+                apply: (view, from, to) => {
+                  view.dispatch({
+                    changes: {
+                      from,
+                      insert: `\n\ntype ${suggestion.name} {\n  # Add fields here\n}\n`,
+                    },
                   });
                 },
               };
