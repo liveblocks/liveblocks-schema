@@ -4,12 +4,11 @@ import { getDiagnostics } from "@liveblocks/schema";
 
 export const linter = lint(
   (view) => {
-    const code = view.state.sliceDoc();
+    const code = view.state.doc.toString();
     const diagnostics: Diagnostic[] = getDiagnostics(code).map((diagnostic) => {
       return {
         from: diagnostic.range[0].offset,
         to: diagnostic.range[1].offset,
-        source: "Liveblocks schema parser",
         message: diagnostic.message,
         severity: diagnostic.severity,
         actions: diagnostic.suggestions
@@ -26,12 +25,18 @@ export const linter = lint(
             } else if (suggestion.type === "add-object-type-def") {
               return {
                 name: "Add definition",
-                apply: (view, from, to) => {
+                apply: (view) => {
+                  const insert = `\n\ntype ${suggestion.name} {\n  \n}\n`;
+                  const to = code.length;
+                  // Ignore trailing new lines and whitespace
+                  const from = code.trimEnd().length;
+
                   view.dispatch({
                     changes: {
                       from: to,
-                      insert: `\n\ntype ${suggestion.name} {\n  # Add fields here\n}\n`,
+                      insert,
                     },
+                    selection: { anchor: from + insert.length - 3 },
                   });
                 },
               };

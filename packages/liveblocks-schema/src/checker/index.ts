@@ -586,7 +586,7 @@ export function check(
 
   if (!context.registeredTypes.has("Storage")) {
     context.errorReporter.throwSemanticError(
-      "Missing root object type definition named 'Storage'",
+      `Missing root object type definition named ${quote("Storage")}`,
       doc.range,
       [{ type: "add-object-type-def", name: "Storage" }]
     );
