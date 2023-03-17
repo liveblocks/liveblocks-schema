@@ -9,7 +9,7 @@ export const linter = lint(
       return {
         from: diagnostic.range[0].offset,
         to: diagnostic.range[1].offset,
-        source: diagnostic.source,
+        source: "Liveblocks schema parser",
         message: diagnostic.message,
         severity: diagnostic.severity,
         actions: diagnostic.suggestions
