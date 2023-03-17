@@ -41,6 +41,7 @@ export function isTypeExpr(node: Node): node is TypeExpr {
   return (
     node._kind === "ArrayExpr" ||
     node._kind === "ObjectLiteralExpr" ||
+    node._kind === "LiveMapExpr" ||
     node._kind === "LiveListExpr" ||
     node._kind === "TypeRef" ||
     isBuiltInScalar(node)
@@ -55,6 +56,7 @@ export type TypeExpr =
   | ArrayExpr
   | BuiltInScalar
   | ObjectLiteralExpr
+  | LiveMapExpr
   | LiveListExpr
   | TypeRef;
 
@@ -69,6 +71,7 @@ export type Node =
   | Identifier
   | IntType
   | LiveListExpr
+  | LiveMapExpr
   | ObjectLiteralExpr
   | ObjectTypeDefinition
   | StringType
@@ -94,6 +97,7 @@ export function isNode(node: Node): node is Node {
     node._kind === "Identifier" ||
     node._kind === "IntType" ||
     node._kind === "LiveListExpr" ||
+    node._kind === "LiveMapExpr" ||
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "ObjectTypeDefinition" ||
     node._kind === "StringType" ||
@@ -151,6 +155,13 @@ export type IntType = {
 export type LiveListExpr = {
   _kind: "LiveListExpr";
   ofType: TypeExpr;
+  range: Range;
+};
+
+export type LiveMapExpr = {
+  _kind: "LiveMapExpr";
+  keyType: TypeExpr;
+  valueType: TypeExpr;
   range: Range;
 };
 
@@ -354,6 +365,35 @@ export function liveListExpr(
   };
 }
 
+export function liveMapExpr(
+  keyType: TypeExpr,
+  valueType: TypeExpr,
+  range: Range = [0, 0]
+): LiveMapExpr {
+  DEBUG &&
+    (() => {
+      assert(
+        isTypeExpr(keyType),
+        `Invalid value for "keyType" arg in "LiveMapExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
+          keyType
+        )}`
+      );
+      assert(
+        isTypeExpr(valueType),
+        `Invalid value for "valueType" arg in "LiveMapExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
+          valueType
+        )}`
+      );
+      assertRange(range, "LiveMapExpr");
+    })();
+  return {
+    _kind: "LiveMapExpr",
+    keyType,
+    valueType,
+    range,
+  };
+}
+
 export function objectLiteralExpr(
   fields: FieldDef[] = [],
   range: Range = [0, 0]
@@ -489,6 +529,7 @@ interface Visitor<TContext> {
   Identifier?(node: Identifier, context: TContext): void;
   IntType?(node: IntType, context: TContext): void;
   LiveListExpr?(node: LiveListExpr, context: TContext): void;
+  LiveMapExpr?(node: LiveMapExpr, context: TContext): void;
   ObjectLiteralExpr?(node: ObjectLiteralExpr, context: TContext): void;
   ObjectTypeDefinition?(node: ObjectTypeDefinition, context: TContext): void;
   StringType?(node: StringType, context: TContext): void;
@@ -546,6 +587,12 @@ export function visit<TNode extends Node, TContext>(
     case "LiveListExpr":
       visitor.LiveListExpr?.(node, context);
       visit(node.ofType, visitor, context);
+      break;
+
+    case "LiveMapExpr":
+      visitor.LiveMapExpr?.(node, context);
+      visit(node.keyType, visitor, context);
+      visit(node.valueType, visitor, context);
       break;
 
     case "ObjectLiteralExpr":

@@ -23,6 +23,8 @@
     "IntTypeList": "ast.IntType[]",
     "LiveListExpr": "ast.LiveListExpr",
     "LiveListExprList": "ast.LiveListExpr[]",
+    "LiveMapExpr": "ast.LiveMapExpr",
+    "LiveMapExprList": "ast.LiveMapExpr[]",
     "Node": "ast.Node",
     "NodeList": "ast.Node[]",
     "ObjectLiteralExpr": "ast.ObjectLiteralExpr",
