@@ -104,7 +104,7 @@ export function isNode(node: Node): node is Node {
 
 export type ArrayExpr = {
   _kind: "ArrayExpr";
-  of: TypeExpr;
+  ofType: TypeExpr;
   range: Range;
 };
 
@@ -150,7 +150,7 @@ export type IntType = {
 
 export type LiveListExpr = {
   _kind: "LiveListExpr";
-  of: TypeExpr;
+  ofType: TypeExpr;
   range: Range;
 };
 
@@ -188,20 +188,20 @@ export type TypeRef = {
   range: Range;
 };
 
-export function arrayExpr(of: TypeExpr, range: Range = [0, 0]): ArrayExpr {
+export function arrayExpr(ofType: TypeExpr, range: Range = [0, 0]): ArrayExpr {
   DEBUG &&
     (() => {
       assert(
-        isTypeExpr(of),
-        `Invalid value for "of" arg in "ArrayExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
-          of
+        isTypeExpr(ofType),
+        `Invalid value for "ofType" arg in "ArrayExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
+          ofType
         )}`
       );
       assertRange(range, "ArrayExpr");
     })();
   return {
     _kind: "ArrayExpr",
-    of,
+    ofType,
     range,
   };
 }
@@ -334,22 +334,22 @@ export function intType(range: Range = [0, 0]): IntType {
 }
 
 export function liveListExpr(
-  of: TypeExpr,
+  ofType: TypeExpr,
   range: Range = [0, 0]
 ): LiveListExpr {
   DEBUG &&
     (() => {
       assert(
-        isTypeExpr(of),
-        `Invalid value for "of" arg in "LiveListExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
-          of
+        isTypeExpr(ofType),
+        `Invalid value for "ofType" arg in "LiveListExpr" call.\nExpected: @TypeExpr\nGot:      ${JSON.stringify(
+          ofType
         )}`
       );
       assertRange(range, "LiveListExpr");
     })();
   return {
     _kind: "LiveListExpr",
-    of,
+    ofType,
     range,
   };
 }
@@ -513,7 +513,7 @@ export function visit<TNode extends Node, TContext>(
   switch (node._kind) {
     case "ArrayExpr":
       visitor.ArrayExpr?.(node, context);
-      visit(node.of, visitor, context);
+      visit(node.ofType, visitor, context);
       break;
 
     case "BooleanType":
@@ -545,7 +545,7 @@ export function visit<TNode extends Node, TContext>(
 
     case "LiveListExpr":
       visitor.LiveListExpr?.(node, context);
-      visit(node.of, visitor, context);
+      visit(node.ofType, visitor, context);
       break;
 
     case "ObjectLiteralExpr":

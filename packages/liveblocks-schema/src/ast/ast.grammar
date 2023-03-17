@@ -30,7 +30,7 @@
 
 # e.g. "String[]", or "Int[][]", etc.
 ArrayExpr:
-    of  @TypeExpr
+    ofType  @TypeExpr
 
 
 # Reference to a custom, user-defined, type. Not a built-in. Things like
@@ -64,7 +64,7 @@ Identifier:
 
 # e.g. LiveList<...>
 LiveListExpr:
-    of  @TypeExpr
+    ofType  @TypeExpr
 
 
 # e.g. { cx: Number; cy: Number; r: Float }

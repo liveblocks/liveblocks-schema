@@ -195,7 +195,7 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
           "trailingComment": null,
           "type": {
             "_kind": "ArrayExpr",
-            "of": {
+            "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,
               "range": [
@@ -270,7 +270,7 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
           "trailingComment": null,
           "type": {
             "_kind": "ArrayExpr",
-            "of": {
+            "ofType": {
               "_kind": "ObjectLiteralExpr",
               "fields": [
                 {
@@ -534,13 +534,13 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
           "trailingComment": null,
           "type": {
             "_kind": "LiveListExpr",
-            "of": {
+            "ofType": {
               "_kind": "LiveListExpr",
-              "of": {
+              "ofType": {
                 "_kind": "ArrayExpr",
-                "of": {
+                "ofType": {
                   "_kind": "ArrayExpr",
-                  "of": {
+                  "ofType": {
                     "_kind": "TypeRef",
                     "asLiveObject": false,
                     "range": [

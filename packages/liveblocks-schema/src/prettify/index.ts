@@ -47,10 +47,10 @@ export function prettify(node: Node): string {
       return `{ ${node.fields.map(prettify).join(", ")} }`;
 
     case "ArrayExpr":
-      return `${prettify(node.of)}[]`;
+      return `${prettify(node.ofType)}[]`;
 
     case "LiveListExpr":
-      return `LiveList<${prettify(node.of)}>`;
+      return `LiveList<${prettify(node.ofType)}>`;
 
     case "Identifier":
       return node.name;

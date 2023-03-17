@@ -209,7 +209,7 @@ function checkObjectLiteralExpr(
 }
 
 function checkArrayExpr(arr: ArrayExpr, context: Context): void {
-  ensureNoLiveType(arr.of, "inside an array", context);
+  ensureNoLiveType(arr.ofType, "inside an array", context);
 }
 
 function checkTypeName(node: TypeName, context: Context): void {
@@ -348,7 +348,7 @@ function checkNoForbiddenRefs(
 
     case "ArrayExpr":
     case "LiveListExpr":
-      checkNoForbiddenRefs(node.of, context, forbidden);
+      checkNoForbiddenRefs(node.ofType, context, forbidden);
       break;
 
     case "TypeRef": {
