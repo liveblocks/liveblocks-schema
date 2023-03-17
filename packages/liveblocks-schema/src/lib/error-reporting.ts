@@ -41,10 +41,9 @@ export type DiagnosticSource = "parser" | "checker";
 
 export type Severity = "error" | "warning" | "info";
 
-export type Suggestion = {
-  type: "replace";
-  name: string;
-};
+export type Suggestion =
+  | { type: "replace"; name: string }
+  | { type: "add-object-type-def"; name: string };
 
 export type Diagnostic = {
   source: DiagnosticSource;

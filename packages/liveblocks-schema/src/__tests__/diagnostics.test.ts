@@ -44,6 +44,7 @@ describe("diagnostic error reporting", () => {
           { column1: 1, line1: 1, offset: 0 },
           { column1: 2, line1: 2, offset: 34 },
         ],
+        suggestions: [{ type: "add-object-type-def", name: "Storage" }],
       },
     ]);
   });
