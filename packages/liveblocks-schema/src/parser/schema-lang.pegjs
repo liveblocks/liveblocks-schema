@@ -85,7 +85,7 @@ Identifier "<identifier>"
 // e.g. "Circle" or "Person" -- used in type positions
 // Similar to Identifier, but there are different semantic validation rules that apply
 TypeName "<type name>"
-  = !( LiveListKeyword / LiveObjectKeyword ) name:$( WORD_CHAR+ ) !WORD_CHAR _
+  = !( LiveObjectKeyword / LiveListKeyword / LiveMapKeyword ) name:$( WORD_CHAR+ ) !WORD_CHAR _
     { return ast.typeName(name, rng()) }
 
 
@@ -160,6 +160,10 @@ LiveListKeyword
   = _ @$'LiveList' EOK
 
 
+LiveMapKeyword
+  = _ @$'LiveMap' EOK
+
+
 LiveObjectKeyword
   = _ @$'LiveObject' EOK
 
@@ -181,6 +185,7 @@ TypeExprBase
   = ObjectLiteralExpr
   / BuiltInScalar
   / LiveListExpr
+  / LiveMapExpr
   / TypeRef
   // / Literal
 
@@ -195,6 +200,11 @@ BuiltInScalar
 LiveListExpr
   = LiveListKeyword LT expr:TypeExpr GT
     { return ast.liveListExpr(expr, rng()) }
+
+
+LiveMapExpr
+  = LiveMapKeyword LT keyType:TypeExpr COMMA valueType:TypeExpr GT
+    { return ast.liveMapExpr(keyType, valueType, rng()) }
 
 
 TypeRef
