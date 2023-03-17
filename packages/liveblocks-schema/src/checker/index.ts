@@ -4,6 +4,8 @@ import type {
   Document,
   FieldDef,
   Identifier,
+  LiveMapExpr,
+  LiveTypeExpr,
   ObjectLiteralExpr,
   ObjectTypeDefinition,
   Range,
@@ -11,7 +13,7 @@ import type {
   TypeName,
   TypeRef,
 } from "../ast";
-import { isBuiltInScalar, visit } from "../ast";
+import { isBuiltInScalar, isLiveTypeExpr, visit } from "../ast";
 import { assertNever } from "../lib/assert";
 import { didyoumean as dym } from "../lib/didyoumean";
 import type { ErrorReporter, Suggestion } from "../lib/error-reporting";
@@ -48,6 +50,18 @@ function suggest_general(value: string, alternatives: string[]): string[] {
   }
 
   return suggestions;
+}
+
+/**
+ * Whether a type expression is a generic LiveXxx<> type.
+ */
+function isLiveType(node: TypeExpr): node is LiveTypeExpr | TypeRef {
+  return (
+    // LiveList<...>, or LiveMap<...>
+    isLiveTypeExpr(node) ||
+    // e.g. LiveObject<...>
+    (node._kind === "TypeRef" && node.asLiveObject)
+  );
 }
 
 function didyoumeanify(message: string, alternatives: string[]): string {
@@ -189,10 +203,8 @@ function checkNoDuplicateFields(fieldDefs: FieldDef[], context: Context): void {
 }
 
 function ensureNoLiveType(expr: TypeExpr, where: string, context: Context) {
-  if (expr._kind === "TypeRef" && expr.asLiveObject) {
-    context.report(`Cannot use LiveObject ${where}`, expr.range);
-  } else if (expr._kind === "LiveListExpr") {
-    context.report(`Cannot use LiveList ${where}`, expr.range);
+  if (isLiveType(expr)) {
+    context.report(`Cannot use Live construct ${where}`, expr.range);
   }
 }
 
@@ -416,6 +428,17 @@ function checkObjectTypeDefinition(
   checkNoForbiddenRefs(def, context, new Set([def.name.name]));
 }
 
+function checkLiveMapExpr(node: LiveMapExpr, context: Context): void {
+  // Check that the `keyType` is always `String`, never another type
+  if (node.keyType._kind !== "StringType") {
+    context.report(
+      `Only 'String' keys are currently supported in LiveMaps`,
+      node.keyType.range,
+      [{ type: "replace", name: "String" }]
+    );
+  }
+}
+
 /**
  * This initial pass registers all type definitions found in the AST in the
  * registeredTypes registry in the context, for easy lookup.
@@ -468,6 +491,11 @@ function decideStaticOrLive(doc: Document, context: Context): void {
         def,
         {
           LiveListExpr: () => {
+            liveObjRefs.set(def.name.name, null);
+            throw "break";
+          },
+
+          LiveMapExpr: () => {
             liveObjRefs.set(def.name.name, null);
             throw "break";
           },
@@ -586,8 +614,9 @@ export function check(
   visit(
     doc,
     {
-      Identifier: checkIdentifier,
       ArrayExpr: checkArrayExpr,
+      Identifier: checkIdentifier,
+      LiveMapExpr: checkLiveMapExpr,
       ObjectLiteralExpr: checkObjectLiteralExpr,
       ObjectTypeDefinition: checkObjectTypeDefinition,
       TypeName: checkTypeName,

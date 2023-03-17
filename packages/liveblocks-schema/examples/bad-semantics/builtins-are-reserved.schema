@@ -9,15 +9,3 @@ type Float { a: String }
 type Storage { x: String }
 type String { a: Int }
      ^^^^^ Name 'String' is a built-in and cannot be redefined
----
-type Storage { x: LiveMap }
-type LiveMap { a: String }
-     ^^^^^^^ Name 'LiveMap' is a built-in and cannot be redefined
----
-type Storage { x: LiveObject }
-type LiveObject { a: String }
-     ^^^^^^^^^^ Name 'LiveObject' is a built-in and cannot be redefined
----
-type Storage { x: LiveList }
-type LiveList { a: String }
-     ^^^^^^^^ Name 'LiveList' is a built-in and cannot be redefined

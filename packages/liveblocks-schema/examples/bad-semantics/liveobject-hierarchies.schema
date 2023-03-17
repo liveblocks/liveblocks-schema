@@ -22,19 +22,19 @@ type Qux {}
 ---
 type Storage {
   a: { b: { c: { d: LiveObject<Foo> } } }
-                    ^^^^^^^^^^^^^^^ Cannot use LiveObject inside an object literal
+                    ^^^^^^^^^^^^^^^ Cannot use Live construct inside an object literal
 }
 type Foo {}
 ---
 type Storage {
   a: { b: { c: { d: LiveList<Foo> } } }
-                    ^^^^^^^^^^^^^ Cannot use LiveList inside an object literal
+                    ^^^^^^^^^^^^^ Cannot use Live construct inside an object literal
 }
 type Foo {}
 ---
 type Storage {
   a: { b: { c: { d: LiveMap<String, Foo> } } }
-                    ^^^^^^^^^^^^^^^^^^^^ Cannot use LiveMap inside an object literal
+                    ^^^^^^^^^^^^^^^^^^^^ Cannot use Live construct inside an object literal
 }
 type Foo {}
 ---
@@ -61,12 +61,12 @@ type Bar {}
 ---
 type Bar {}
 type Storage { bad: LiveObject<Bar>[] }
-                    ^^^^^^^^^^^^^^^^^ Cannot use LiveObject inside an array
+                    ^^^^^^^^^^^^^^^^^ Cannot use Live construct inside an array
 ---
 type Bar {}
 type Storage { bad: LiveList<Bar>[] }
-                    ^^^^^^^^^^^^^^^ Cannot use LiveList inside an array
+                    ^^^^^^^^^^^^^^^ Cannot use Live construct inside an array
 ---
 type Bar {}
 type Storage { bad: LiveMap<String, Bar>[] }
-                    ^^^^^^^^^^^^^^^^^^^^^^ Cannot use LiveMap inside an array
+                    ^^^^^^^^^^^^^^^^^^^^^^ Cannot use Live construct inside an array

@@ -37,14 +37,17 @@ export function isDefinition(node: Node): node is Definition {
   return node._kind === "ObjectTypeDefinition";
 }
 
+export function isLiveTypeExpr(node: Node): node is LiveTypeExpr {
+  return node._kind === "LiveMapExpr" || node._kind === "LiveListExpr";
+}
+
 export function isTypeExpr(node: Node): node is TypeExpr {
   return (
     node._kind === "ArrayExpr" ||
     node._kind === "ObjectLiteralExpr" ||
-    node._kind === "LiveMapExpr" ||
-    node._kind === "LiveListExpr" ||
     node._kind === "TypeRef" ||
-    isBuiltInScalar(node)
+    isBuiltInScalar(node) ||
+    isLiveTypeExpr(node)
   );
 }
 
@@ -52,12 +55,13 @@ export type BuiltInScalar = StringType | IntType | FloatType | BooleanType;
 
 export type Definition = ObjectTypeDefinition;
 
+export type LiveTypeExpr = LiveMapExpr | LiveListExpr;
+
 export type TypeExpr =
   | ArrayExpr
   | BuiltInScalar
+  | LiveTypeExpr
   | ObjectLiteralExpr
-  | LiveMapExpr
-  | LiveListExpr
   | TypeRef;
 
 export type Range = [number, number];

@@ -23,10 +23,14 @@
     # | ScalarDefinition
     | ArrayExpr
     | @BuiltInScalar
+    | @LiveTypeExpr
     | ObjectLiteralExpr
+    | TypeRef
+
+
+@LiveTypeExpr:
     | LiveMapExpr
     | LiveListExpr
-    | TypeRef
 
 
 # e.g. "String[]", or "Int[][]", etc.

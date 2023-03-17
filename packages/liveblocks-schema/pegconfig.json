@@ -25,6 +25,8 @@
     "LiveListExprList": "ast.LiveListExpr[]",
     "LiveMapExpr": "ast.LiveMapExpr",
     "LiveMapExprList": "ast.LiveMapExpr[]",
+    "LiveTypeExpr": "ast.LiveTypeExpr",
+    "LiveTypeExprList": "ast.LiveTypeExpr[]",
     "Node": "ast.Node",
     "NodeList": "ast.Node[]",
     "ObjectLiteralExpr": "ast.ObjectLiteralExpr",
