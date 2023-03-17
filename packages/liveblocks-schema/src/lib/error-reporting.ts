@@ -61,7 +61,14 @@ function makeDiagnostic(
   severity: Severity = "error",
   suggestions?: Suggestion[]
 ): Diagnostic {
-  return { source, severity, range, message, suggestions };
+  return {
+    source,
+    severity,
+    range,
+    message,
+    suggestions:
+      suggestions && suggestions.length > 0 ? suggestions : undefined,
+  };
 }
 
 function formatDiagnostic(diagnostic: Diagnostic): string {
