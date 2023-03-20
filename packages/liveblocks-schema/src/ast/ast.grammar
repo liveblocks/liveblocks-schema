@@ -24,12 +24,18 @@
     | ObjectLiteralType
     | @LiveType
     | TypeRef
+    | UnionType
 
 
 @LiveType:
     # NOTE: LiveObject is *NOT* a LiveType, but a special modifier on TypeRef
     | LiveMapType
     | LiveListType
+
+
+# e.g. "A | B", "A | (B | C)", etc
+UnionType:
+    members  @Type+
 
 
 # e.g. "string[]", or "number[][]", etc.

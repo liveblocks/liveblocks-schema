@@ -363,6 +363,12 @@ function checkNoForbiddenRefs(
       break;
     }
 
+    case "UnionType":
+      for (const member of node.members) {
+        checkNoForbiddenRefs(member, context, forbidden);
+      }
+      break;
+
     default:
       return assertNever(node, "Unhandled case");
   }

@@ -42,6 +42,8 @@
     "TypeName": "ast.TypeName",
     "TypeNameList": "ast.TypeName[]",
     "TypeRef": "ast.TypeRef",
-    "TypeRefList": "ast.TypeRef[]"
+    "TypeRefList": "ast.TypeRef[]",
+    "UnionType": "ast.UnionType",
+    "UnionTypeList": "ast.UnionType[]"
   }
 }
