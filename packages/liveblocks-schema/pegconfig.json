@@ -29,6 +29,8 @@
     "LiveStructureExprList": "ast.LiveStructureExpr[]",
     "Node": "ast.Node",
     "NodeList": "ast.Node[]",
+    "NullType": "ast.NullType",
+    "NullTypeList": "ast.NullType[]",
     "ObjectLiteralExpr": "ast.ObjectLiteralExpr",
     "ObjectLiteralExprList": "ast.ObjectLiteralExpr[]",
     "ObjectTypeDefinition": "ast.ObjectTypeDefinition",
@@ -42,6 +44,8 @@
     "TypeName": "ast.TypeName",
     "TypeNameList": "ast.TypeName[]",
     "TypeRef": "ast.TypeRef",
-    "TypeRefList": "ast.TypeRef[]"
+    "TypeRefList": "ast.TypeRef[]",
+    "UnionExpr": "ast.UnionExpr",
+    "UnionExprList": "ast.UnionExpr[]"
   }
 }

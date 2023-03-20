@@ -8,13 +8,13 @@ type X { a: LiveList }      # Not enough params
                      ^ Expected "<" but "}" found
 ---
 type X { a: LiveList<> }    # Not enough params
-                     ^ Expected "Boolean", "Float", "Int", "LiveList", "LiveMap", "LiveObject", "String", "{", or <type name> but ">" found
+                     ^ Expected "Boolean", "Float", "Int", "LiveList", "LiveMap", "LiveObject", "Null", "String", "{", or <type name> but ">" found
 ---
 type X { a: LiveMap }       # Not enough params
                     ^ Expected "<" but "}" found
 ---
 type X { a: LiveMap<> }     # Not enough params
-                    ^ Expected "Boolean", "Float", "Int", "LiveList", "LiveMap", "LiveObject", "String", "{", or <type name> but ">" found
+                    ^ Expected "Boolean", "Float", "Int", "LiveList", "LiveMap", "LiveObject", "Null", "String", "{", or <type name> but ">" found
 ---
 type X { a: LiveMap<Int> }  # Not enough params
                        ^ Expected "," or "[" but ">" found

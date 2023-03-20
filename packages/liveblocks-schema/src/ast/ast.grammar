@@ -11,6 +11,7 @@
     | IntType
     | FloatType
     | BooleanType
+    | NullType
 
 
 # A custom user-defined type definition
@@ -26,11 +27,17 @@
     | @LiveStructureExpr
     | ObjectLiteralExpr
     | TypeRef
+    | UnionExpr
 
 
 @LiveStructureExpr:
     | LiveMapExpr
     | LiveListExpr
+
+
+# e.g. "A | B", "A | (B | C)", etc
+UnionExpr:
+    members  @TypeExpr+
 
 
 # e.g. "String[]", or "Int[][]", etc.
@@ -114,4 +121,8 @@ FloatType:
 
 
 BooleanType:
+    # no fields
+
+
+NullType:
     # no fields
