@@ -432,7 +432,7 @@ function checkLiveMapExpr(node: LiveMapExpr, context: Context): void {
   // Check that the `keyType` is always `String`, never another type
   if (node.keyType._kind !== "StringType") {
     context.report(
-      `Only 'String' keys are currently supported in LiveMaps`,
+      "Only 'String' keys are currently supported in LiveMaps",
       node.keyType.range,
       [{ type: "replace", name: "String" }]
     );
