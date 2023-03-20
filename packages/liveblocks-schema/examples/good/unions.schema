@@ -1,0 +1,21 @@
+type Storage { a: String | Null }
+---
+type Storage { a: (String) }
+---
+type Storage { a: ((String)) }
+---
+type Storage { a: (String | Null) | Null | Null }
+---
+type Storage { a: (String | Null) | (Null | Null) }
+---
+type Storage { a: (Null | Null) | (Null | Null) }
+---
+type Storage { a: (Null | Null)[] | (Null | Null)[][] }
+---
+type Storage { a: (Null | Null)[] | (Null | Null)[][] }
+---
+type Storage { a: ((Null | Null)[] | (Null | Null)[])[] }
+---
+type Storage { a: ((((Null)))) | ((((Null)))) }
+---
+type Storage { a: ((((Null)))) | ((((Null)))) }
