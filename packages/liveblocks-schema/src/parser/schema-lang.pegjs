@@ -184,8 +184,7 @@ TypeExpr
 TypeExprBase
   = ObjectLiteralExpr
   / BuiltInScalar
-  / LiveListExpr
-  / LiveMapExpr
+  / LiveStructureExpr
   / TypeRef
   // / Literal
 
@@ -195,6 +194,14 @@ BuiltInScalar
   / IntType
   / FloatType
   / BooleanType
+
+
+// e.g. LiveMap<> or LiveList<>
+// NOTE that LiveObject<> is _not_ a Live structure, but technically is more
+// like a modifier on type references
+LiveStructureExpr
+  = LiveListExpr
+  / LiveMapExpr
 
 
 LiveListExpr
@@ -209,9 +216,9 @@ LiveMapExpr
 
 TypeRef
   = LiveObjectKeyword LT name:TypeName GT
-    { return ast.typeRef(name, true, rng()) }
+    { return ast.typeRef(name, /* asLiveObject */ true, rng()) }
   / name:TypeName
-    { return ast.typeRef(name, false, rng()) }
+    { return ast.typeRef(name, /* asLiveObject */ false, rng()) }
 
 
 // Literal
