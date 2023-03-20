@@ -23,12 +23,12 @@
     # | ScalarDefinition
     | ArrayExpr
     | @BuiltInScalar
-    | @LiveTypeExpr
+    | @LiveStructureExpr
     | ObjectLiteralExpr
     | TypeRef
 
 
-@LiveTypeExpr:
+@LiveStructureExpr:
     | LiveMapExpr
     | LiveListExpr
 

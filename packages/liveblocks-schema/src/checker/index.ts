@@ -5,7 +5,7 @@ import type {
   FieldDef,
   Identifier,
   LiveMapExpr,
-  LiveTypeExpr,
+  LiveStructureExpr,
   ObjectLiteralExpr,
   ObjectTypeDefinition,
   Range,
@@ -13,7 +13,7 @@ import type {
   TypeName,
   TypeRef,
 } from "../ast";
-import { isBuiltInScalar, isLiveTypeExpr, visit } from "../ast";
+import { isBuiltInScalar, isLiveStructureExpr, visit } from "../ast";
 import { assertNever } from "../lib/assert";
 import { didyoumean as dym } from "../lib/didyoumean";
 import type { ErrorReporter, Suggestion } from "../lib/error-reporting";
@@ -55,10 +55,10 @@ function suggest_general(value: string, alternatives: string[]): string[] {
 /**
  * Whether a type expression is a generic LiveXxx<> type.
  */
-function isLiveType(node: TypeExpr): node is LiveTypeExpr | TypeRef {
+function isLiveStructure(node: TypeExpr): node is LiveStructureExpr | TypeRef {
   return (
     // LiveList<...>, or LiveMap<...>
-    isLiveTypeExpr(node) ||
+    isLiveStructureExpr(node) ||
     // e.g. LiveObject<...>
     (node._kind === "TypeRef" && node.asLiveObject)
   );
@@ -195,8 +195,12 @@ function checkNoDuplicateFields(fieldDefs: FieldDef[], context: Context): void {
   }
 }
 
-function ensureNoLiveType(expr: TypeExpr, where: string, context: Context) {
-  if (isLiveType(expr)) {
+function ensureNoLiveStructure(
+  expr: TypeExpr,
+  where: string,
+  context: Context
+) {
+  if (isLiveStructure(expr)) {
     context.report(`Cannot use Live construct ${where}`, expr.range);
   }
 }
@@ -209,12 +213,12 @@ function checkObjectLiteralExpr(
 
   // Check that none of the fields here use a "live" reference
   for (const field of obj.fields) {
-    ensureNoLiveType(field.type, "inside an object literal", context);
+    ensureNoLiveStructure(field.type, "inside an object literal", context);
   }
 }
 
 function checkArrayExpr(arr: ArrayExpr, context: Context): void {
-  ensureNoLiveType(arr.ofType, "inside an array", context);
+  ensureNoLiveStructure(arr.ofType, "inside an array", context);
 }
 
 function checkTypeName(node: TypeName, context: Context): void {
