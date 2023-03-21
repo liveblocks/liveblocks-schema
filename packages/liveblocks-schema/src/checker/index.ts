@@ -18,8 +18,8 @@ import type {
 import { isBuiltInScalar, isLiveStructureExpr, visit } from "../ast";
 import { assertNever } from "../lib/assert";
 import { didyoumean as dym } from "../lib/didyoumean";
-import { prettify } from "../prettify";
 import type { ErrorReporter, Suggestion } from "../lib/error-reporting";
+import { prettify } from "../prettify";
 
 function quote(value: string): string {
   return `'${value.replace(/'/g, "\\'")}'`;
