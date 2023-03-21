@@ -19,7 +19,7 @@
     | ObjectTypeDefinition
 
 
-@TypeExpr:
+@NonUnionTypeExpr:
     # | @Literal
     # | ScalarDefinition
     | ArrayExpr
@@ -27,7 +27,15 @@
     | @LiveStructureExpr
     | ObjectLiteralExpr
     | TypeRef
+
+
+@UnionTypeExpr:
     | UnionExpr
+
+
+@TypeExpr:
+    | @NonUnionTypeExpr
+    | @UnionTypeExpr
 
 
 @LiveStructureExpr:
@@ -37,7 +45,7 @@
 
 # e.g. "A | B", "A | (B | C)", etc
 UnionExpr:
-    members  @TypeExpr+
+    members  @NonUnionTypeExpr+
 
 
 # e.g. "String[]", or "Int[][]", etc.

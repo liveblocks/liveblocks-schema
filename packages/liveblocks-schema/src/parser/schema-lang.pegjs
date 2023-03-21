@@ -174,21 +174,21 @@ LiveObjectKeyword
 
 
 TypeExpr
-  = left:TypeExprLevel2 PIPE right:TypeExpr
+  = left:NonUnionTypeExpr PIPE right:TypeExpr
     {
       /* If either left or right is a union type, let's flatten them */
       const members = [left, right]
         .flatMap(expr =>
-          expr._kind === 'UnionExpr'
+          ast.isUnionTypeExpr(expr)
             ? expr.members
             : [expr]
         );
       return ast.unionExpr(members, rng());
     }
-  / @TypeExprLevel2
+  / @NonUnionTypeExpr
 
 
-TypeExprLevel2
+NonUnionTypeExpr
   = expr:TypeExprLevel3 brackets:( LSQUARE RSQUARE { return rng() })+
     {
       let node = expr;

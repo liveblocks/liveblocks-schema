@@ -42,15 +42,22 @@ export function isLiveStructureExpr(node: Node): node is LiveStructureExpr {
   return node._kind === "LiveMapExpr" || node._kind === "LiveListExpr";
 }
 
-export function isTypeExpr(node: Node): node is TypeExpr {
+export function isNonUnionTypeExpr(node: Node): node is NonUnionTypeExpr {
   return (
     node._kind === "ArrayExpr" ||
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "TypeRef" ||
-    node._kind === "UnionExpr" ||
     isBuiltInScalar(node) ||
     isLiveStructureExpr(node)
   );
+}
+
+export function isTypeExpr(node: Node): node is TypeExpr {
+  return isNonUnionTypeExpr(node) || isUnionTypeExpr(node);
+}
+
+export function isUnionTypeExpr(node: Node): node is UnionTypeExpr {
+  return node._kind === "UnionExpr";
 }
 
 export type BuiltInScalar =
@@ -64,13 +71,16 @@ export type Definition = ObjectTypeDefinition;
 
 export type LiveStructureExpr = LiveMapExpr | LiveListExpr;
 
-export type TypeExpr =
+export type NonUnionTypeExpr =
   | ArrayExpr
   | BuiltInScalar
   | LiveStructureExpr
   | ObjectLiteralExpr
-  | TypeRef
-  | UnionExpr;
+  | TypeRef;
+
+export type TypeExpr = NonUnionTypeExpr | UnionTypeExpr;
+
+export type UnionTypeExpr = UnionExpr;
 
 export type Range = [number, number];
 
@@ -223,7 +233,7 @@ export type TypeRef = {
 
 export type UnionExpr = {
   _kind: "UnionExpr";
-  members: TypeExpr[];
+  members: NonUnionTypeExpr[];
   range: Range;
 };
 
@@ -560,7 +570,7 @@ export function typeRef(
 }
 
 export function unionExpr(
-  members: TypeExpr[],
+  members: NonUnionTypeExpr[],
   range: Range = [0, 0]
 ): UnionExpr {
   DEBUG &&
@@ -568,8 +578,8 @@ export function unionExpr(
       assert(
         Array.isArray(members) &&
           members.length > 0 &&
-          members.every((item) => isTypeExpr(item)),
-        `Invalid value for "members" arg in "UnionExpr" call.\nExpected: @TypeExpr+\nGot:      ${JSON.stringify(
+          members.every((item) => isNonUnionTypeExpr(item)),
+        `Invalid value for "members" arg in "UnionExpr" call.\nExpected: @NonUnionTypeExpr+\nGot:      ${JSON.stringify(
           members
         )}`
       );
