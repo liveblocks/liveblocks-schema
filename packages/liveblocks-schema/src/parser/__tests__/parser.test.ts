@@ -154,6 +154,18 @@ describe("syntactic parser", () => {
       }
 
       type abc {}         // Lowercased type names are syntactically valid
+
+      type Unions {
+        a: String | Int | Int[]
+        b: (String | Int | Int)[]
+
+        // All of these are the same
+        c: (String | Int | Int | Null)
+        d: ((String | Int) | Null)
+        e: (String | (Int | Null))
+        f: ((String | (Int | Null)))
+        g: Null | Int | String  # But order is retained
+      }
       `
       )
     ).toMatchSnapshot();
