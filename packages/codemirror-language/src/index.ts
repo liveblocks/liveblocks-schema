@@ -35,7 +35,7 @@ export const LiveblocksSchema = LRLanguage.define({
         Name: t.name,
         NamedType: t.typeName,
         GenericType: t.special(t.typeName),
-        NamedTypeDeclaration: t.variableName,
+        NamedTypeDeclaration: t.function(t.typeName),
         type: t.keyword,
         separator: t.separator,
         comma: t.separator,
