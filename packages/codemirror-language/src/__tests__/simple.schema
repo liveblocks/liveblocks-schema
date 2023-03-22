@@ -20,4 +20,5 @@ type Name {
   d: Name[]
   e?: Name[][]
   f: Name | Name<Name>
+  g: ((Name | Name)[]) | (Name<Name> | Name)
 }

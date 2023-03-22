@@ -2,7 +2,7 @@
 // TODO: Styling: Fix commas in generic types
 
 @skip {
-  whitespace | Comment
+  whitespace | parentheses | Comment
 }
 
 @precedence {
@@ -69,6 +69,8 @@ ValueDefinition {
   separator { "," | ";" }
 
   whitespace { @whitespace+ }
+
+  parentheses { ("(" | ")") }
 
   "{" "}" "<" ">" "[" "]" ":" "|"
 }

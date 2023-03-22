@@ -48,7 +48,7 @@ export const LiveblocksSchema = LRLanguage.define({
   }),
   languageData: {
     commentTokens: { line: "#" },
-    closeBrackets: { brackets: ["{", "<", "[", '"'] },
+    closeBrackets: { brackets: ["{", "<", "[", "(", '"'] },
     indentOnInput: /^\s*(\{|\})$/,
   },
 });
