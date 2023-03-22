@@ -13,7 +13,7 @@ import { parser } from "./syntax.grammar";
 const parentheses = "( )";
 const braces = "{ }";
 const angleBrackets = "< >";
-const punctuations = `${parentheses} ${braces} ${angleBrackets} : = ?`;
+const punctuations = `${parentheses} ${braces} ${angleBrackets} : = ? |`;
 const blocks = `FieldsDefinition ${braces}`;
 const generic = `GenericType ${angleBrackets}`;
 

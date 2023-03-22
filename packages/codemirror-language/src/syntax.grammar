@@ -6,7 +6,9 @@
 }
 
 @precedence {
-  precedence
+  block
+  union
+  list
 }
 
 @top Document {
@@ -54,7 +56,7 @@ FieldsDefinition {
 }
 
 ValueDefinition {
-  Name "?"? ":" Type separator?
+  Name "?"? ":" union<Type> separator?
 }
 
 @tokens {
@@ -64,19 +66,19 @@ ValueDefinition {
   
   capitalizedName { $[_A-Z] $[_0-9A-Za-z]* }
 
-  separator { comma | ";" }
-
-  comma { "," }
+  separator { "," | ";" }
 
   whitespace { @whitespace+ }
 
-  "{" "}" "<" ">" "[" "]" ":"
+  "{" "}" "<" ">" "[" "]" ":" "|"
 }
 
 keyword<term> { @specialize[@name={term}]<name, term> }
 
-block<expression> { !precedence "{" expression "}" }
+block<expression> { !block "{" expression "}" }
 
-list<value> { !precedence value (comma value)* }
+union<value> { !union value ("|" value)* }
+
+list<value> { !list value ("," value)* }
 
 @detectDelim

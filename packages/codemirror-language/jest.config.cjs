@@ -7,4 +7,7 @@ module.exports = {
   ...commonJestConfig,
 
   // Add overrides here
+  transform: {
+    "^.+\\.js?$": "ts-jest",
+  },
 };
