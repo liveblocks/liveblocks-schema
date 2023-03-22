@@ -7,7 +7,7 @@ export default defineConfig({
   splitting: true,
   clean: true,
   target: "es2015",
-  format: ["cjs"],
+  format: ["esm"],
   esbuildPlugins: [lezer],
 
   // Perhaps enable later?

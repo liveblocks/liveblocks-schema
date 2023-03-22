@@ -2,6 +2,7 @@
   "name": "@liveblocks/codemirror-language",
   "version": "0.0.10-beta5",
   "description": "CodeMirror language for the Liveblocks schema language",
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
