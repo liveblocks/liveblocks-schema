@@ -137,22 +137,26 @@ FieldDef
 
 
 StringType
-  = _ 'String' EOK
+  = _ 'string' EOK
+    { return ast.stringType(rng()) }
+
+  / &{ return !!options?.allowLegacyBuiltins } _ 'String' EOK
     { return ast.stringType(rng()) }
 
 
-IntType
-  = _ 'Int' EOK
-    { return ast.intType(rng()) }
+NumberType
+  = _ 'number' EOK
+    { return ast.numberType(rng()) }
 
-
-FloatType
-  = _ 'Float' EOK
-    { return ast.floatType(rng()) }
+  / &{ return !!options?.allowLegacyBuiltins } _ ( 'Int' / 'Float' ) EOK
+    { return ast.numberType(rng()) }
 
 
 BooleanType
-  = _ 'Boolean' EOK
+  = _ 'boolean' EOK
+    { return ast.booleanType(rng()) }
+
+  / &{ return !!options?.allowLegacyBuiltins } _ 'Boolean' EOK
     { return ast.booleanType(rng()) }
 
 
@@ -191,8 +195,7 @@ TypeExprBase
 
 BuiltInScalar
   = StringType
-  / IntType
-  / FloatType
+  / NumberType
   / BooleanType
 
 

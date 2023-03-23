@@ -26,30 +26,17 @@ const TYPENAME_REGEX = /^[A-Z_]/;
 
 // TODO Ideally _derive_ this list of builtins directly from the grammar
 // instead somehow?
-const BUILTINS = ["String", "Int", "Float", "Boolean"] as const;
+const BUILTINS = [
+  "string",
+  "number",
+  "boolean",
+  // TODO: Add null
+] as const;
 
 function suggest_general(value: string, alternatives: string[]): string[] {
   // Never suggest "Storage"
   alternatives = alternatives.filter((key) => key !== "Storage");
-
-  const suggestions = dym(value, alternatives);
-
-  // Special hack:
-  // It can be expected that people will try to put "number" in as a type,
-  // because that's TypeScript's syntax. If there is no custom type name found
-  // that closely matches this typo, then try to suggest one more thing to
-  // nudge them. (But only if Float and Int are already legal suggestions.)
-  if (
-    suggestions.length === 0 &&
-    alternatives.includes("Float") &&
-    alternatives.includes("Int")
-  ) {
-    if (/^num(ber)?$/i.test(value)) {
-      return ["Float", "Int"];
-    }
-  }
-
-  return suggestions;
+  return dym(value, alternatives);
 }
 
 /**
@@ -77,7 +64,8 @@ function didyoumeanify(message: string, alternatives: string[]): string {
 /**
  * Reserve these names for future use.
  */
-const RESERVED_TYPENAMES_REGEX = /^Live|^(Presence|Array)$/i;
+const RESERVED_TYPENAMES_REGEX =
+  /^live|^(presence|array|string|int|float|number|boolean|null)$/i;
 
 /**
  * Reserve these identifiers for future use.
@@ -222,6 +210,13 @@ function checkArrayExpr(arr: ArrayExpr, context: Context): void {
 }
 
 function checkTypeName(node: TypeName, context: Context): void {
+  if (BUILTINS.some((bname) => bname === node.name)) {
+    context.report(
+      `Name ${quote(node.name)} is a built-in and cannot be redefined`,
+      node.range
+    );
+  }
+
   if (!TYPENAME_REGEX.test(node.name)) {
     context.report(
       "Type names should start with an uppercase character",
@@ -229,18 +224,13 @@ function checkTypeName(node: TypeName, context: Context): void {
     );
   }
 
-  // Continue collecting more errors
-
-  if (BUILTINS.some((bname) => bname === node.name)) {
-    context.report(
-      `Name ${quote(node.name)} is a built-in and cannot be redefined`,
-      node.range
-    );
-  } else if (RESERVED_TYPENAMES_REGEX.test(node.name)) {
-    context.report(
-      `Name ${quote(node.name)} is reserved for future use`,
-      node.range
-    );
+  if (!context.errorReporter.hasErrors) {
+    if (RESERVED_TYPENAMES_REGEX.test(node.name)) {
+      context.report(
+        `Name ${quote(node.name)} is reserved for future use`,
+        node.range
+      );
+    }
   }
 }
 
@@ -429,9 +419,9 @@ function checkLiveMapExpr(node: LiveMapExpr, context: Context): void {
   // Check that the `keyType` is always `String`, never another type
   if (node.keyType._kind !== "StringType") {
     context.report(
-      "Only 'String' keys are currently supported in LiveMaps",
+      "Only 'string' keys are currently supported in LiveMaps",
       node.keyType.range,
-      [{ type: "replace", name: "String" }]
+      [{ type: "replace", name: "string" }]
     );
   }
 }

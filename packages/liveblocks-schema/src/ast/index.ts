@@ -27,8 +27,7 @@ function assertRange(
 export function isBuiltInScalar(node: Node): node is BuiltInScalar {
   return (
     node._kind === "StringType" ||
-    node._kind === "IntType" ||
-    node._kind === "FloatType" ||
+    node._kind === "NumberType" ||
     node._kind === "BooleanType"
   );
 }
@@ -51,7 +50,7 @@ export function isTypeExpr(node: Node): node is TypeExpr {
   );
 }
 
-export type BuiltInScalar = StringType | IntType | FloatType | BooleanType;
+export type BuiltInScalar = StringType | NumberType | BooleanType;
 
 export type Definition = ObjectTypeDefinition;
 
@@ -71,11 +70,10 @@ export type Node =
   | BooleanType
   | Document
   | FieldDef
-  | FloatType
   | Identifier
-  | IntType
   | LiveListExpr
   | LiveMapExpr
+  | NumberType
   | ObjectLiteralExpr
   | ObjectTypeDefinition
   | StringType
@@ -97,11 +95,10 @@ export function isNode(node: Node): node is Node {
     node._kind === "BooleanType" ||
     node._kind === "Document" ||
     node._kind === "FieldDef" ||
-    node._kind === "FloatType" ||
     node._kind === "Identifier" ||
-    node._kind === "IntType" ||
     node._kind === "LiveListExpr" ||
     node._kind === "LiveMapExpr" ||
+    node._kind === "NumberType" ||
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "ObjectTypeDefinition" ||
     node._kind === "StringType" ||
@@ -138,21 +135,9 @@ export type FieldDef = {
   range: Range;
 };
 
-export type FloatType = {
-  _kind: "FloatType";
-
-  range: Range;
-};
-
 export type Identifier = {
   _kind: "Identifier";
   name: string;
-  range: Range;
-};
-
-export type IntType = {
-  _kind: "IntType";
-
   range: Range;
 };
 
@@ -166,6 +151,12 @@ export type LiveMapExpr = {
   _kind: "LiveMapExpr";
   keyType: TypeExpr;
   valueType: TypeExpr;
+  range: Range;
+};
+
+export type NumberType = {
+  _kind: "NumberType";
+
   range: Range;
 };
 
@@ -308,17 +299,6 @@ export function fieldDef(
   };
 }
 
-export function floatType(range: Range = [0, 0]): FloatType {
-  DEBUG &&
-    (() => {
-      assertRange(range, "FloatType");
-    })();
-  return {
-    _kind: "FloatType",
-    range,
-  };
-}
-
 export function identifier(name: string, range: Range = [0, 0]): Identifier {
   DEBUG &&
     (() => {
@@ -333,17 +313,6 @@ export function identifier(name: string, range: Range = [0, 0]): Identifier {
   return {
     _kind: "Identifier",
     name,
-    range,
-  };
-}
-
-export function intType(range: Range = [0, 0]): IntType {
-  DEBUG &&
-    (() => {
-      assertRange(range, "IntType");
-    })();
-  return {
-    _kind: "IntType",
     range,
   };
 }
@@ -394,6 +363,17 @@ export function liveMapExpr(
     _kind: "LiveMapExpr",
     keyType,
     valueType,
+    range,
+  };
+}
+
+export function numberType(range: Range = [0, 0]): NumberType {
+  DEBUG &&
+    (() => {
+      assertRange(range, "NumberType");
+    })();
+  return {
+    _kind: "NumberType",
     range,
   };
 }
@@ -529,11 +509,10 @@ interface Visitor<TContext> {
   BooleanType?(node: BooleanType, context: TContext): void;
   Document?(node: Document, context: TContext): void;
   FieldDef?(node: FieldDef, context: TContext): void;
-  FloatType?(node: FloatType, context: TContext): void;
   Identifier?(node: Identifier, context: TContext): void;
-  IntType?(node: IntType, context: TContext): void;
   LiveListExpr?(node: LiveListExpr, context: TContext): void;
   LiveMapExpr?(node: LiveMapExpr, context: TContext): void;
+  NumberType?(node: NumberType, context: TContext): void;
   ObjectLiteralExpr?(node: ObjectLiteralExpr, context: TContext): void;
   ObjectTypeDefinition?(node: ObjectTypeDefinition, context: TContext): void;
   StringType?(node: StringType, context: TContext): void;
@@ -576,16 +555,8 @@ export function visit<TNode extends Node, TContext>(
       visit(node.type, visitor, context);
       break;
 
-    case "FloatType":
-      visitor.FloatType?.(node, context);
-      break;
-
     case "Identifier":
       visitor.Identifier?.(node, context);
-      break;
-
-    case "IntType":
-      visitor.IntType?.(node, context);
       break;
 
     case "LiveListExpr":
@@ -597,6 +568,10 @@ export function visit<TNode extends Node, TContext>(
       visitor.LiveMapExpr?.(node, context);
       visit(node.keyType, visitor, context);
       visit(node.valueType, visitor, context);
+      break;
+
+    case "NumberType":
+      visitor.NumberType?.(node, context);
       break;
 
     case "ObjectLiteralExpr":

@@ -8,8 +8,7 @@
 
 @BuiltInScalar:
     | StringType
-    | IntType
-    | FloatType
+    | NumberType
     | BooleanType
 
 
@@ -105,11 +104,7 @@ StringType:
     # no fields
 
 
-IntType:
-    # no fields
-
-
-FloatType:
+NumberType:
     # no fields
 
 

@@ -22,16 +22,13 @@ export function prettify(node: Node): string {
       return node.definitions.map(prettify).join("\n\n");
 
     case "BooleanType":
-      return "Boolean";
+      return "boolean";
 
     case "StringType":
-      return "String";
+      return "string";
 
-    case "IntType":
-      return "Int";
-
-    case "FloatType":
-      return "Float";
+    case "NumberType":
+      return "number";
 
     case "ObjectTypeDefinition":
       return [

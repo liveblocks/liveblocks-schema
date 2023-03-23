@@ -1,5 +1,13 @@
 # 0.0.11-beta2
 
+- Make all built-in types lowercased, following TypeScript syntax more closely
+  instead of GraphQLs:
+  - `String` → `string`
+  - `Float` → `number`
+  - `Boolean` → `boolean`
+  - Removed `Int` type. It will get reintroduced later in a better way.
+- Added parser option to parser to still allow legacy built-ins (to be able to
+  parse existing valid schemas created before this breaking change)
 - Add CodeMirror integration
 
 # 0.0.10
