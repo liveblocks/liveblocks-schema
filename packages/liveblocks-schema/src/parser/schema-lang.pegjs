@@ -178,7 +178,7 @@ LiveObjectKeyword
 
 
 Type
-  = left:TypeL2 PIPE right:Type
+  = left:NonUnionType PIPE right:Type
     {
       /* If either left or right is a union type, let's flatten them */
       const members = [left, right]
@@ -189,11 +189,11 @@ Type
         );
       return ast.unionType(members, rng());
     }
-  / @TypeL2
+  / @NonUnionType
 
 
-TypeL2
-  = expr:TypeL3 brackets:( LSQUARE RSQUARE { return rng() })*
+NonUnionType
+  = expr:NonUnionTypeL2 brackets:( LSQUARE RSQUARE { return rng() })*
     {
       let node = expr;
       for (const bracket of brackets) {
@@ -203,10 +203,10 @@ TypeL2
       }
       return node;
     }
-  / @TypeL3
+  / @NonUnionTypeL2
 
 
-TypeL3
+NonUnionTypeL2
   = LPAREN @Type RPAREN
   / ObjectLiteralType
   / BuiltInScalar

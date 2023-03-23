@@ -223,8 +223,8 @@ describe("checker", () => {
 
       type Storage {
         // shapes: LiveList<Shape>
-        mycircle: LiveObject<Circle> | Null
-        myrect: LiveObject<Rect> | String | Null
+        mycircle: LiveObject<Circle> | null
+        myrect: LiveObject<Rect> | String | null
       }
     `;
 

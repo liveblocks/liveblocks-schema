@@ -23,6 +23,8 @@
     "LiveTypeList": "ast.LiveType[]",
     "Node": "ast.Node",
     "NodeList": "ast.Node[]",
+    "NonUnionType": "ast.NonUnionType",
+    "NonUnionTypeList": "ast.NonUnionType[]",
     "NullType": "ast.NullType",
     "NullTypeList": "ast.NullType[]",
     "NumberType": "ast.NumberType",

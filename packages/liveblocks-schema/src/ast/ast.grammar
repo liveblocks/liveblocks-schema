@@ -18,12 +18,16 @@
     | ObjectTypeDefinition
 
 
-@Type:
+@NonUnionType:
     | @ScalarType
     | ArrayType
     | ObjectLiteralType
     | @LiveType
     | TypeRef
+
+
+@Type:
+    | @NonUnionType
     | UnionType
 
 
@@ -35,7 +39,7 @@
 
 # e.g. "A | B", "A | (B | C)", etc
 UnionType:
-    members  @Type+
+    members  @NonUnionType+
 
 
 # e.g. "string[]", or "number[][]", etc.

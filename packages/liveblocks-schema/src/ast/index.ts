@@ -32,6 +32,16 @@ export function isLiveType(node: Node): node is LiveType {
   return node._kind === "LiveMapType" || node._kind === "LiveListType";
 }
 
+export function isNonUnionType(node: Node): node is NonUnionType {
+  return (
+    node._kind === "ArrayType" ||
+    node._kind === "ObjectLiteralType" ||
+    node._kind === "TypeRef" ||
+    isScalarType(node) ||
+    isLiveType(node)
+  );
+}
+
 export function isScalarType(node: Node): node is ScalarType {
   return (
     node._kind === "StringType" ||
@@ -42,29 +52,23 @@ export function isScalarType(node: Node): node is ScalarType {
 }
 
 export function isType(node: Node): node is Type {
-  return (
-    node._kind === "ArrayType" ||
-    node._kind === "ObjectLiteralType" ||
-    node._kind === "TypeRef" ||
-    node._kind === "UnionType" ||
-    isScalarType(node) ||
-    isLiveType(node)
-  );
+  return node._kind === "UnionType" || isNonUnionType(node);
 }
 
 export type Definition = ObjectTypeDefinition;
 
 export type LiveType = LiveMapType | LiveListType;
 
-export type ScalarType = StringType | NumberType | BooleanType | NullType;
-
-export type Type =
+export type NonUnionType =
   | ScalarType
   | ArrayType
   | ObjectLiteralType
   | LiveType
-  | TypeRef
-  | UnionType;
+  | TypeRef;
+
+export type ScalarType = StringType | NumberType | BooleanType | NullType;
+
+export type Type = NonUnionType | UnionType;
 
 export type Range = [number, number];
 
@@ -209,7 +213,7 @@ export type TypeRef = {
 
 export type UnionType = {
   _kind: "UnionType";
-  members: Type[];
+  members: NonUnionType[];
   range: Range;
 };
 
@@ -534,14 +538,17 @@ export function typeRef(
   };
 }
 
-export function unionType(members: Type[], range: Range = [0, 0]): UnionType {
+export function unionType(
+  members: NonUnionType[],
+  range: Range = [0, 0]
+): UnionType {
   DEBUG &&
     (() => {
       assert(
         Array.isArray(members) &&
           members.length > 0 &&
-          members.every((item) => isType(item)),
-        `Invalid value for "members" arg in "UnionType" call.\nExpected: @Type+\nGot:      ${JSON.stringify(
+          members.every((item) => isNonUnionType(item)),
+        `Invalid value for "members" arg in "UnionType" call.\nExpected: @NonUnionType+\nGot:      ${JSON.stringify(
           members
         )}`
       );

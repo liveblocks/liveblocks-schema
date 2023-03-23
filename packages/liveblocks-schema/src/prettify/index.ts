@@ -33,12 +33,6 @@ export function prettify(node: Node): string {
     case "NullType":
       return "null";
 
-    case "BooleanType":
-      return "Boolean";
-
-    case "NullType":
-      return "Null";
-
     case "ObjectTypeDefinition":
       return [
         node.leadingComment !== null ? `# ${node.leadingComment}` : null,

@@ -1825,7 +1825,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
             ],
             "trailingComment": null,
             "type": {
-              "_kind": "UnionExpr",
+              "_kind": "UnionType",
               "members": [
                 {
                   "_kind": "TypeRef",
@@ -1875,7 +1875,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
             ],
             "trailingComment": null,
             "type": {
-              "_kind": "UnionExpr",
+              "_kind": "UnionType",
               "members": [
                 {
                   "_kind": "TypeRef",
@@ -2465,7 +2465,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "UnionExpr",
+            "_kind": "UnionType",
             "members": [
               {
                 "_kind": "TypeRef",
@@ -2515,7 +2515,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "UnionExpr",
+            "_kind": "UnionType",
             "members": [
               {
                 "_kind": "TypeRef",
@@ -2593,7 +2593,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
         ],
         "trailingComment": null,
         "type": {
-          "_kind": "UnionExpr",
+          "_kind": "UnionType",
           "members": [
             {
               "_kind": "TypeRef",
@@ -2643,7 +2643,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
         ],
         "trailingComment": null,
         "type": {
-          "_kind": "UnionExpr",
+          "_kind": "UnionType",
           "members": [
             {
               "_kind": "TypeRef",
