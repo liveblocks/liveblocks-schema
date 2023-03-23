@@ -8,6 +8,6 @@ module.exports = {
 
   // Add overrides here
   transform: {
-    "^.+\\.js?$": "ts-jest",
+    "^.+\\.js$": "ts-jest",
   },
 };
