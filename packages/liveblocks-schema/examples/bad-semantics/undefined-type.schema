@@ -43,7 +43,7 @@ type Storage {
 type Storage {
   x: LiveObject<Number>
                 ^^^^^^ Unknown object type 'Number'
-                       # Should also *not* suggest 'number' or 'number' here
+                       # Should also *not* suggest 'number' here
 }
 ---
 type Strang { }
