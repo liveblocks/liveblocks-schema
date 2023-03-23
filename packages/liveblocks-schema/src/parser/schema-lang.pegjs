@@ -160,6 +160,11 @@ BooleanType
     { return ast.booleanType(rng()) }
 
 
+NullType
+  = _ 'null' EOK
+    { return ast.nullType(rng()) }
+
+
 LiveListKeyword
   = _ @$'LiveList' EOK
 
@@ -196,6 +201,7 @@ TypeExprBase
 BuiltInScalar
   = StringType
   / NumberType
+  / NullType
   / BooleanType
 
 

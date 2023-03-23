@@ -26,12 +26,7 @@ const TYPENAME_REGEX = /^[A-Z_]/;
 
 // TODO Ideally _derive_ this list of builtins directly from the grammar
 // instead somehow?
-const BUILTINS = [
-  "string",
-  "number",
-  "boolean",
-  // TODO: Add null
-] as const;
+const BUILTINS = ["string", "number", "boolean", "null"] as const;
 
 function suggest_general(value: string, alternatives: string[]): string[] {
   // Never suggest "Storage"

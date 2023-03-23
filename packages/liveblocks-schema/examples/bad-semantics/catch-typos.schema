@@ -16,7 +16,7 @@ type Storage { s: Float }
                   ^ Unknown type 'Float'
 ---
 type Storage { s: Null }
-                  ^ Unknown type 'Null'
+                  ^ Unknown type 'Null'. Did you mean 'null'?
 ---
 type Storage { s: String }
                   ^ Unknown type 'String'. Did you mean 'string'?

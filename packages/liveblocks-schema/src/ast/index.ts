@@ -28,7 +28,8 @@ export function isBuiltInScalar(node: Node): node is BuiltInScalar {
   return (
     node._kind === "StringType" ||
     node._kind === "NumberType" ||
-    node._kind === "BooleanType"
+    node._kind === "BooleanType" ||
+    node._kind === "NullType"
   );
 }
 
@@ -50,7 +51,7 @@ export function isTypeExpr(node: Node): node is TypeExpr {
   );
 }
 
-export type BuiltInScalar = StringType | NumberType | BooleanType;
+export type BuiltInScalar = StringType | NumberType | BooleanType | NullType;
 
 export type Definition = ObjectTypeDefinition;
 
@@ -73,6 +74,7 @@ export type Node =
   | Identifier
   | LiveListExpr
   | LiveMapExpr
+  | NullType
   | NumberType
   | ObjectLiteralExpr
   | ObjectTypeDefinition
@@ -98,6 +100,7 @@ export function isNode(node: Node): node is Node {
     node._kind === "Identifier" ||
     node._kind === "LiveListExpr" ||
     node._kind === "LiveMapExpr" ||
+    node._kind === "NullType" ||
     node._kind === "NumberType" ||
     node._kind === "ObjectLiteralExpr" ||
     node._kind === "ObjectTypeDefinition" ||
@@ -151,6 +154,12 @@ export type LiveMapExpr = {
   _kind: "LiveMapExpr";
   keyType: TypeExpr;
   valueType: TypeExpr;
+  range: Range;
+};
+
+export type NullType = {
+  _kind: "NullType";
+
   range: Range;
 };
 
@@ -367,6 +376,17 @@ export function liveMapExpr(
   };
 }
 
+export function nullType(range: Range = [0, 0]): NullType {
+  DEBUG &&
+    (() => {
+      assertRange(range, "NullType");
+    })();
+  return {
+    _kind: "NullType",
+    range,
+  };
+}
+
 export function numberType(range: Range = [0, 0]): NumberType {
   DEBUG &&
     (() => {
@@ -512,6 +532,7 @@ interface Visitor<TContext> {
   Identifier?(node: Identifier, context: TContext): void;
   LiveListExpr?(node: LiveListExpr, context: TContext): void;
   LiveMapExpr?(node: LiveMapExpr, context: TContext): void;
+  NullType?(node: NullType, context: TContext): void;
   NumberType?(node: NumberType, context: TContext): void;
   ObjectLiteralExpr?(node: ObjectLiteralExpr, context: TContext): void;
   ObjectTypeDefinition?(node: ObjectTypeDefinition, context: TContext): void;
@@ -568,6 +589,10 @@ export function visit<TNode extends Node, TContext>(
       visitor.LiveMapExpr?.(node, context);
       visit(node.keyType, visitor, context);
       visit(node.valueType, visitor, context);
+      break;
+
+    case "NullType":
+      visitor.NullType?.(node, context);
       break;
 
     case "NumberType":

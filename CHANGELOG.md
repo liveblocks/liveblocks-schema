@@ -6,6 +6,8 @@
   - `Float` → `number`
   - `Boolean` → `boolean`
   - Removed `Int` type. It will get reintroduced later in a better way.
+  - Added a new `null` type. (It's not super useful yet, because there is no
+    union construct yet, but that will be added soon.)
 - Added parser option to parser to still allow legacy built-ins (to be able to
   parse existing valid schemas created before this breaking change)
 - Add CodeMirror integration

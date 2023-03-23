@@ -10,6 +10,8 @@ type Rect {
   height: number
   fill: RGB
   stroke: RGB
+  hellyeah: boolean
+  nothin: null
 }
 
 type Circle {

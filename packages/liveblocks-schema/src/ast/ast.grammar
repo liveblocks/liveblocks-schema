@@ -10,6 +10,7 @@
     | StringType
     | NumberType
     | BooleanType
+    | NullType
 
 
 # A custom user-defined type definition
@@ -109,4 +110,8 @@ NumberType:
 
 
 BooleanType:
+    # no fields
+
+
+NullType:
     # no fields

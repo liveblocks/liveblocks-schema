@@ -21,14 +21,17 @@ export function prettify(node: Node): string {
     case "Document":
       return node.definitions.map(prettify).join("\n\n");
 
-    case "BooleanType":
-      return "boolean";
-
     case "StringType":
       return "string";
 
     case "NumberType":
       return "number";
+
+    case "BooleanType":
+      return "boolean";
+
+    case "NullType":
+      return "null";
 
     case "ObjectTypeDefinition":
       return [
