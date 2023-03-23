@@ -1,0 +1,21 @@
+type Storage { a: string | null }
+---
+type Storage { a: (string) }
+---
+type Storage { a: ((string)) }
+---
+type Storage { a: (string | null) | null | null }
+---
+type Storage { a: (string | null) | (null | null) }
+---
+type Storage { a: (null | null) | (null | null) }
+---
+type Storage { a: (null | null)[] | (null | null)[][] }
+---
+type Storage { a: (null | null)[] | (null | null)[][] }
+---
+type Storage { a: ((null | null)[] | (null | null)[])[] }
+---
+type Storage { a: ((((null)))) | ((((null)))) }
+---
+type Storage { a: ((((null)))) | ((((null)))) }
