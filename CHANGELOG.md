@@ -1,3 +1,7 @@
+# 0.0.11-beta2
+
+- Add CodeMirror integration
+
 # 0.0.10
 
 - Add support for `LiveList` types (e.g. `LiveList<Todo>`)
@@ -6,7 +10,6 @@
 - Add new top-level API for diagnostic reporting `getDiagnostics(schemaText)`,
   useful in text editors and IDEs that don't need the parse result, just the
   diagnostic error information (if any).
-- Add CodeMirror integration
 - Fix: parser now correctly rejects keywords used in type name positions, e.g.
   `LiveObject<LiveObject>`
 
