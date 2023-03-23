@@ -91,18 +91,18 @@ describe("syntactic parser", () => {
             ast.fieldDef(
               ast.identifier("list"),
               false,
-              ast.liveListExpr(ast.typeRef(ast.typeName("Bar"), false))
+              ast.liveListType(ast.typeRef(ast.typeName("Bar"), false))
             ),
 
             ast.fieldDef(
               ast.identifier("map"),
               false,
-              ast.liveMapExpr(
+              ast.liveMapType(
                 ast.stringType(),
-                ast.liveListExpr(
-                  ast.arrayExpr(
-                    ast.liveMapExpr(
-                      ast.arrayExpr(ast.typeRef(ast.typeName("Bar"), false)),
+                ast.liveListType(
+                  ast.arrayType(
+                    ast.liveMapType(
+                      ast.arrayType(ast.typeRef(ast.typeName("Bar"), false)),
                       ast.typeRef(ast.typeName("Qux"), false)
                     )
                   )
@@ -179,18 +179,18 @@ describe("syntactic parser", () => {
             ast.fieldDef(
               ast.identifier("list"),
               false,
-              ast.liveListExpr(ast.typeRef(ast.typeName("Bar"), false))
+              ast.liveListType(ast.typeRef(ast.typeName("Bar"), false))
             ),
 
             ast.fieldDef(
               ast.identifier("map"),
               false,
-              ast.liveMapExpr(
+              ast.liveMapType(
                 ast.stringType(),
-                ast.liveListExpr(
-                  ast.arrayExpr(
-                    ast.liveMapExpr(
-                      ast.arrayExpr(ast.typeRef(ast.typeName("Bar"), false)),
+                ast.liveListType(
+                  ast.arrayType(
+                    ast.liveMapType(
+                      ast.arrayType(ast.typeRef(ast.typeName("Bar"), false)),
                       ast.typeRef(ast.typeName("Qux"), false)
                     )
                   )

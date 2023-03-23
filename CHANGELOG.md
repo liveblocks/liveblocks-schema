@@ -10,6 +10,13 @@
     union construct yet, but that will be added soon.)
 - Added parser option to parser to still allow legacy built-ins (to be able to
   parse existing valid schemas created before this breaking change)
+- The following AST nodes have been renamed:
+  - `ArrayExpr` -> `ArrayType`
+  - `BuiltInScalar` -> `ScalarType`
+  - `LiveListExpr` -> `LiveListType`
+  - `LiveMapExpr` -> `LiveMapType`
+  - `ObjectLiteralExpr` -> `ObjectLiteralType`
+  - `TypeExpr` -> `Type`
 - Add CodeMirror integration
 
 # 0.0.10

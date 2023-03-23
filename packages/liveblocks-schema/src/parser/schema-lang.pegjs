@@ -109,9 +109,9 @@ ObjectTypeDefinition
     ) }
 
 
-ObjectLiteralExpr
+ObjectLiteralType
   = LCURLY fields:FieldDefList? RCURLY
-    { return ast.objectLiteralExpr(fields ?? [], rng()) }
+    { return ast.objectLiteralType(fields ?? [], rng()) }
 
 
 FieldDefList
@@ -122,7 +122,7 @@ FieldDefList
 
 
 FieldDef
-  = name:Identifier question:QUESTION? COLON type:TypeExpr
+  = name:Identifier question:QUESTION? COLON type:Type
     {
       const optional = question !== null;
       return ast.fieldDef(
@@ -177,23 +177,23 @@ LiveObjectKeyword
   = _ @$'LiveObject' EOK
 
 
-TypeExpr
-  = expr:TypeExprBase brackets:( LSQUARE RSQUARE { return rng() })*
+Type
+  = expr:TypeTypeBase brackets:( LSQUARE RSQUARE { return rng() })*
     {
       let node = expr;
       for (const bracket of brackets) {
         const [start, _] = node.range
         const [___, end] = bracket
-        node = ast.arrayExpr(node, [start, end])
+        node = ast.arrayType(node, [start, end])
       }
       return node;
     }
 
 
-TypeExprBase
-  = ObjectLiteralExpr
+TypeTypeBase
+  = ObjectLiteralType
   / BuiltInScalar
-  / LiveStructureExpr
+  / LiveType
   / TypeRef
   // / Literal
 
@@ -208,19 +208,19 @@ BuiltInScalar
 // e.g. LiveMap<> or LiveList<>
 // NOTE that LiveObject<> is _not_ a Live structure, but technically is more
 // like a modifier on type references
-LiveStructureExpr
-  = LiveListExpr
-  / LiveMapExpr
+LiveType
+  = LiveListType
+  / LiveMapType
 
 
-LiveListExpr
-  = LiveListKeyword LT expr:TypeExpr GT
-    { return ast.liveListExpr(expr, rng()) }
+LiveListType
+  = LiveListKeyword LT expr:Type GT
+    { return ast.liveListType(expr, rng()) }
 
 
-LiveMapExpr
-  = LiveMapKeyword LT keyType:TypeExpr COMMA valueType:TypeExpr GT
-    { return ast.liveMapExpr(keyType, valueType, rng()) }
+LiveMapType
+  = LiveMapKeyword LT keyType:Type COMMA valueType:Type GT
+    { return ast.liveMapType(keyType, valueType, rng()) }
 
 
 TypeRef

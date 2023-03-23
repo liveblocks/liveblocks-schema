@@ -245,7 +245,7 @@ exports[`checker large document (snapshot test) 1`] = `
             ],
             "trailingComment": null,
             "type": {
-              "_kind": "ArrayExpr",
+              "_kind": "ArrayType",
               "ofType": {
                 "_kind": "TypeRef",
                 "asLiveObject": false,
@@ -286,7 +286,7 @@ exports[`checker large document (snapshot test) 1`] = `
             ],
             "trailingComment": null,
             "type": {
-              "_kind": "LiveListExpr",
+              "_kind": "LiveListType",
               "ofType": {
                 "_kind": "TypeRef",
                 "asLiveObject": false,
@@ -846,7 +846,7 @@ exports[`checker large document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "ArrayExpr",
+            "_kind": "ArrayType",
             "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,
@@ -887,7 +887,7 @@ exports[`checker large document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "LiveListExpr",
+            "_kind": "LiveListType",
             "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,
@@ -1537,7 +1537,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
             ],
             "trailingComment": null,
             "type": {
-              "_kind": "ArrayExpr",
+              "_kind": "ArrayType",
               "ofType": {
                 "_kind": "TypeRef",
                 "asLiveObject": false,
@@ -1578,7 +1578,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
             ],
             "trailingComment": null,
             "type": {
-              "_kind": "LiveListExpr",
+              "_kind": "LiveListType",
               "ofType": {
                 "_kind": "TypeRef",
                 "asLiveObject": false,
@@ -2138,7 +2138,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "ArrayExpr",
+            "_kind": "ArrayType",
             "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,
@@ -2179,7 +2179,7 @@ exports[`checker large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "LiveListExpr",
+            "_kind": "LiveListType",
             "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,

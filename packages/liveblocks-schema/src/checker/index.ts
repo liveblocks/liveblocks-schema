@@ -1,19 +1,19 @@
 import type {
-  ArrayExpr,
+  ArrayType,
   Definition,
   Document,
   FieldDef,
   Identifier,
-  LiveMapExpr,
-  LiveStructureExpr,
-  ObjectLiteralExpr,
+  LiveMapType,
+  LiveType,
+  ObjectLiteralType,
   ObjectTypeDefinition,
   Range,
-  TypeExpr,
+  Type,
   TypeName,
   TypeRef,
 } from "../ast";
-import { isBuiltInScalar, isLiveStructureExpr, visit } from "../ast";
+import { isLiveType, isScalarType, visit } from "../ast";
 import { assertNever } from "../lib/assert";
 import { didyoumean as dym } from "../lib/didyoumean";
 import type { ErrorReporter, Suggestion } from "../lib/error-reporting";
@@ -37,10 +37,10 @@ function suggest_general(value: string, alternatives: string[]): string[] {
 /**
  * Whether a type expression is a generic LiveXxx<> type.
  */
-function isLiveStructure(node: TypeExpr): node is LiveStructureExpr | TypeRef {
+function isLiveStructure(node: Type): node is LiveType | TypeRef {
   return (
     // LiveList<...>, or LiveMap<...>
-    isLiveStructureExpr(node) ||
+    isLiveType(node) ||
     // e.g. LiveObject<...>
     (node._kind === "TypeRef" && node.asLiveObject)
   );
@@ -178,18 +178,14 @@ function checkNoDuplicateFields(fieldDefs: FieldDef[], context: Context): void {
   }
 }
 
-function ensureNoLiveStructure(
-  expr: TypeExpr,
-  where: string,
-  context: Context
-) {
+function ensureNoLiveStructure(expr: Type, where: string, context: Context) {
   if (isLiveStructure(expr)) {
     context.report(`Cannot use Live construct ${where}`, expr.range);
   }
 }
 
-function checkObjectLiteralExpr(
-  obj: ObjectLiteralExpr,
+function checkObjectLiteralType(
+  obj: ObjectLiteralType,
   context: Context
 ): void {
   checkNoDuplicateFields(obj.fields, context);
@@ -200,7 +196,7 @@ function checkObjectLiteralExpr(
   }
 }
 
-function checkArrayExpr(arr: ArrayExpr, context: Context): void {
+function checkArrayType(arr: ArrayType, context: Context): void {
   ensureNoLiveStructure(arr.ofType, "inside an array", context);
 }
 
@@ -309,11 +305,11 @@ function checkTypeRef(ref: TypeRef, context: Context): void {
 }
 
 function checkNoForbiddenRefs(
-  node: ObjectTypeDefinition | TypeExpr,
+  node: ObjectTypeDefinition | Type,
   context: Context,
   forbidden: Set<string>
 ): void {
-  if (isBuiltInScalar(node)) {
+  if (isScalarType(node)) {
     return;
   }
 
@@ -329,7 +325,7 @@ function checkNoForbiddenRefs(
       }
       break;
 
-    case "ObjectLiteralExpr":
+    case "ObjectLiteralType":
       for (const field of node.fields) {
         // TODO for later. Allow _some_ self-references. For example, if
         // `field.optional`, then it'd be perfectly fine to use
@@ -340,12 +336,12 @@ function checkNoForbiddenRefs(
       }
       break;
 
-    case "ArrayExpr":
-    case "LiveListExpr":
+    case "ArrayType":
+    case "LiveListType":
       checkNoForbiddenRefs(node.ofType, context, forbidden);
       break;
 
-    case "LiveMapExpr":
+    case "LiveMapType":
       checkNoForbiddenRefs(node.keyType, context, forbidden);
       checkNoForbiddenRefs(node.valueType, context, forbidden);
       break;
@@ -410,7 +406,7 @@ function checkObjectTypeDefinition(
   checkNoForbiddenRefs(def, context, new Set([def.name.name]));
 }
 
-function checkLiveMapExpr(node: LiveMapExpr, context: Context): void {
+function checkLiveMapType(node: LiveMapType, context: Context): void {
   // Check that the `keyType` is always `String`, never another type
   if (node.keyType._kind !== "StringType") {
     context.report(
@@ -472,12 +468,12 @@ function decideStaticOrLive(doc: Document, context: Context): void {
       visit(
         def,
         {
-          LiveListExpr: () => {
+          LiveListType: () => {
             liveObjRefs.set(def.name.name, null);
             throw "break";
           },
 
-          LiveMapExpr: () => {
+          LiveMapType: () => {
             liveObjRefs.set(def.name.name, null);
             throw "break";
           },
@@ -596,10 +592,10 @@ export function check(
   visit(
     doc,
     {
-      ArrayExpr: checkArrayExpr,
+      ArrayType: checkArrayType,
       Identifier: checkIdentifier,
-      LiveMapExpr: checkLiveMapExpr,
-      ObjectLiteralExpr: checkObjectLiteralExpr,
+      LiveMapType: checkLiveMapType,
+      ObjectLiteralType: checkObjectLiteralType,
       ObjectTypeDefinition: checkObjectTypeDefinition,
       TypeName: checkTypeName,
       TypeRef: checkTypeRef,

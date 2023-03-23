@@ -194,7 +194,7 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "ArrayExpr",
+            "_kind": "ArrayType",
             "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,
@@ -269,9 +269,9 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "ArrayExpr",
+            "_kind": "ArrayType",
             "ofType": {
-              "_kind": "ObjectLiteralExpr",
+              "_kind": "ObjectLiteralType",
               "fields": [
                 {
                   "_kind": "FieldDef",
@@ -533,11 +533,11 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "LiveListExpr",
+            "_kind": "LiveListType",
             "ofType": {
-              "_kind": "LiveMapExpr",
+              "_kind": "LiveMapType",
               "keyType": {
-                "_kind": "ArrayExpr",
+                "_kind": "ArrayType",
                 "ofType": {
                   "_kind": "NumberType",
                   "range": [
@@ -555,11 +555,11 @@ exports[`syntactic parser large document (snapshot test) 1`] = `
                 690,
               ],
               "valueType": {
-                "_kind": "LiveListExpr",
+                "_kind": "LiveListType",
                 "ofType": {
-                  "_kind": "ArrayExpr",
+                  "_kind": "ArrayType",
                   "ofType": {
-                    "_kind": "ArrayExpr",
+                    "_kind": "ArrayType",
                     "ofType": {
                       "_kind": "TypeRef",
                       "asLiveObject": false,
@@ -888,7 +888,7 @@ exports[`syntactic parser large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "ArrayExpr",
+            "_kind": "ArrayType",
             "ofType": {
               "_kind": "TypeRef",
               "asLiveObject": false,
@@ -963,9 +963,9 @@ exports[`syntactic parser large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "ArrayExpr",
+            "_kind": "ArrayType",
             "ofType": {
-              "_kind": "ObjectLiteralExpr",
+              "_kind": "ObjectLiteralType",
               "fields": [
                 {
                   "_kind": "FieldDef",
@@ -1272,11 +1272,11 @@ exports[`syntactic parser large legacy document (snapshot test) 1`] = `
           ],
           "trailingComment": null,
           "type": {
-            "_kind": "LiveListExpr",
+            "_kind": "LiveListType",
             "ofType": {
-              "_kind": "LiveMapExpr",
+              "_kind": "LiveMapType",
               "keyType": {
-                "_kind": "ArrayExpr",
+                "_kind": "ArrayType",
                 "ofType": {
                   "_kind": "TypeRef",
                   "asLiveObject": false,
@@ -1303,11 +1303,11 @@ exports[`syntactic parser large legacy document (snapshot test) 1`] = `
                 660,
               ],
               "valueType": {
-                "_kind": "LiveListExpr",
+                "_kind": "LiveListType",
                 "ofType": {
-                  "_kind": "ArrayExpr",
+                  "_kind": "ArrayType",
                   "ofType": {
-                    "_kind": "ArrayExpr",
+                    "_kind": "ArrayType",
                     "ofType": {
                       "_kind": "TypeRef",
                       "asLiveObject": false,
