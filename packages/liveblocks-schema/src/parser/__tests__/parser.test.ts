@@ -242,6 +242,18 @@ describe("syntactic parser", () => {
       }
 
       type abc {}         // Lowercased type names are syntactically valid
+
+      type Unions {
+        a: string | number | number[]
+        b: (string | number | number)[]
+
+        // All of these are the same
+        c: (string | number | number | null)
+        d: ((string | number) | null)
+        e: (string | (number | null))
+        f: ((string | (number | null)))
+        g: null | number | string  # But order is retained
+      }
       `
       )
     ).toMatchSnapshot();
@@ -277,6 +289,18 @@ describe("syntactic parser", () => {
       }
 
       type abc {}         // Lowercased type names are syntactically valid
+
+      type Unions {
+        a: String | Int | Int[]
+        b: (String | Int | Int)[]
+
+        // All of these are the same
+        c: (String | Int | Int | null)
+        d: ((String | Int) | null)
+        e: (String | (Int | null))
+        f: ((String | (Int | null)))
+        g: null | Int | String  # But order is retained
+      }
       `
       )
     ).toMatchSnapshot();
