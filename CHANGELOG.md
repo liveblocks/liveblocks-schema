@@ -1,4 +1,4 @@
-# 0.0.12-beta1
+# 0.0.12
 
 - Add support for union types
 
