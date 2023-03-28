@@ -310,22 +310,19 @@ function checkTypeRef(ref: TypeRef, context: Context): void {
   checkLiveObjectRefs(ref, context);
 }
 
-const Tag = {
-  // strlit: 0,
-  // numlit: 1,
-  // boollit: 2,
-  str: 3,
-  num: 4,
-  bool: 5,
-  null: 6,
-  array: 7,
-  object: 8,
-  liveList: 9,
-  liveMap: 10,
-  liveObject: 11,
-} as const;
-
-type Tag = (typeof Tag)[keyof typeof Tag];
+type Tag =
+  | "str"
+  | "num"
+  | "bool"
+  | "arr"
+  | "obj"
+  | "livemap"
+  | "livelist"
+  | "liveobj"
+  | "null"
+  | `str:${string}`
+  | `num:${number}`
+  | `bool:${boolean}`;
 
 /**
  * Returns a string which acts as a "type tag": a high-level indicator that
@@ -355,34 +352,43 @@ type Tag = (typeof Tag)[keyof typeof Tag];
  * - string | string[]
  * - etc.
  */
-function getTypeTag(node: NonUnionType): Tag {
+function getStrictTypeTag(node: NonUnionType): Tag {
   switch (node._kind) {
     case "ArrayType":
-      return Tag.array;
+      return "arr";
 
     case "ObjectLiteralType":
-      return Tag.object;
+      return "obj";
 
     case "LiveMapType":
-      return Tag.liveMap;
+      return "livemap";
 
     case "LiveListType":
-      return Tag.liveList;
+      return "livelist";
 
     case "StringType":
-      return Tag.str;
+      return "str";
 
     case "NumberType":
-      return Tag.num;
+      return "num";
 
     case "BooleanType":
-      return Tag.bool;
+      return "bool";
 
     case "NullType":
-      return Tag.null;
+      return "null";
+
+    case "StringLiteralType":
+      return `str:${node.value}`;
+
+    case "NumberLiteralType":
+      return `num:${node.value}`;
+
+    case "BooleanLiteralType":
+      return `bool:${node.value}`;
 
     case "TypeRef":
-      return node.asLiveObject ? Tag.liveObject : Tag.object;
+      return node.asLiveObject ? "liveobj" : "obj";
 
     default:
       return assertNever(node, "Unhandled case");
@@ -439,16 +445,17 @@ function checkUnionType(node: UnionType, context: Context): void {
     context.report("Unions must have at least 2 members", node.range);
   }
 
-  for (const [member1, member2] of dupes(node.members, getTypeTag)) {
-    const tag = getTypeTag(member1);
-    if (tag === Tag.object) {
+  // On the first pass, error on any exact tag duplicates
+  for (const [member1, member2] of dupes(node.members, getStrictTypeTag)) {
+    const tag = getStrictTypeTag(member1);
+    if (tag === "obj") {
       context.report(
         `Unions with more than one object type are not yet supported: type ${quote(
           prettify(member2)
         )} cannot appear in a union with ${quote(prettify(member1))}`,
         member2.range
       );
-    } else if (tag === Tag.liveObject) {
+    } else if (tag === "liveobj") {
       context.report(
         `Unions with more than one LiveObject are not yet supported: type ${quote(
           prettify(member2)
@@ -467,6 +474,64 @@ function checkUnionType(node: UnionType, context: Context): void {
           : []
       );
     }
+  }
+
+  // If we get here, we know there aren't any exact duplicates, but we can
+  // still do a more loose pass, combining all literals into their base type,
+  // and see if there are any conflicts that way
+  const membersByTag = new Map<string, NonUnionType>();
+  for (const member of node.members) {
+    const parts = getStrictTypeTag(member).split(":")[0];
+    const tag = parts.length > 1 ? `${parts[0]}:` : parts[0];
+    membersByTag.set(tag, member);
+  }
+
+  // Error: string literals and `string` type cannot appear in the same union
+  if (membersByTag.has("str") && membersByTag.has("str:")) {
+    const str = membersByTag.get("str")!;
+    const lit = membersByTag.get("str:")!;
+    const rangeToRemove = growToIncludePipe(str.range, context);
+    context.report(
+      `Type ${quote(prettify(str))} cannot appear in a union with ${quote(
+        prettify(lit)
+      )}`,
+      str.range,
+      rangeToRemove !== undefined
+        ? [{ type: "remove", range: rangeToRemove }]
+        : []
+    );
+  }
+
+  // Error: number literals and `number` type cannot appear in the same union
+  if (membersByTag.has("num") && membersByTag.has("num:")) {
+    const num = membersByTag.get("num")!;
+    const lit = membersByTag.get("num:")!;
+    const rangeToRemove = growToIncludePipe(num.range, context);
+    context.report(
+      `Type ${quote(prettify(num))} cannot appear in a union with ${quote(
+        prettify(lit)
+      )}`,
+      num.range,
+      rangeToRemove !== undefined
+        ? [{ type: "remove", range: rangeToRemove }]
+        : []
+    );
+  }
+
+  // Error: boolean literals and `boolean` type cannot appear in the same union
+  if (membersByTag.has("bool") && membersByTag.has("bool:")) {
+    const bool = membersByTag.get("bool")!;
+    const lit = membersByTag.get("bool:")!;
+    const rangeToRemove = growToIncludePipe(bool.range, context);
+    context.report(
+      `Type ${quote(prettify(bool))} cannot appear in a union with ${quote(
+        prettify(lit)
+      )}`,
+      bool.range,
+      rangeToRemove !== undefined
+        ? [{ type: "remove", range: rangeToRemove }]
+        : []
+    );
   }
 }
 

@@ -11,6 +11,13 @@
     | NumberType
     | BooleanType
     | NullType
+    | @LiteralType
+
+
+@LiteralType:
+    | StringLiteralType
+    | NumberLiteralType
+    | BooleanLiteralType
 
 
 # A custom user-defined type definition
@@ -124,3 +131,15 @@ BooleanType:
 
 NullType:
     # no fields
+
+
+StringLiteralType:
+    value  string
+
+
+NumberLiteralType:
+    value  number
+
+
+BooleanLiteralType:
+    value  boolean
