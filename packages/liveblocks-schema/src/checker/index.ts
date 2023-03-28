@@ -1,5 +1,6 @@
 import type {
   ArrayType,
+  BooleanLiteralType,
   Definition,
   Document,
   FieldDef,
@@ -7,9 +8,11 @@ import type {
   LiveMapType,
   LiveType,
   NonUnionType,
+  NumberLiteralType,
   ObjectLiteralType,
   ObjectTypeDefinition,
   Range,
+  StringLiteralType,
   Type,
   TypeName,
   TypeRef,
