@@ -400,10 +400,9 @@ function eatWhitespaceRight(srcText: string, pos: number): number {
 }
 
 function growToIncludePipeLeft(
-  range: Range,
+  [start, end]: Range,
   srcText: string
 ): Range | undefined {
-  let [start, end] = range;
   start = eatWhitespaceLeft(srcText, start - 1);
   if (srcText.charAt(start) === "|") {
     start = eatWhitespaceLeft(srcText, start - 1) + 1;
@@ -414,11 +413,10 @@ function growToIncludePipeLeft(
 }
 
 function growToIncludePipeRight(
-  range: Range,
+  [start, end]: Range,
   srcText: string
 ): Range | undefined {
   // Try to grow to the right
-  let [start, end] = range;
   end = eatWhitespaceRight(srcText, end);
   if (srcText.charAt(end) === "|") {
     end = eatWhitespaceRight(srcText, end + 1);
