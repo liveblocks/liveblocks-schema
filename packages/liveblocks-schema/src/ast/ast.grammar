@@ -58,7 +58,7 @@ ArrayType:
 # "Circle", "BlogPost", "LiveObject<Circle>", "LiveObject<BlogPost>", etc.
 TypeRef:
     ref           TypeName
-    asLiveObject  boolean
+    asLiveObject  `boolean`
 
 
 Document:
@@ -67,20 +67,20 @@ Document:
 
 FieldDef:
     name             Identifier
-    optional         boolean
+    optional         `boolean`
     type             @Type
-    leadingComment   string?
-    trailingComment  string?
+    leadingComment   `string`?
+    trailingComment  `string`?
 
 
 # e.g. "Circle" or "Person" -- used in type positions
 TypeName:
-    name  string
+    name  `string`
 
 
 # e.g. "x" or "y" -- used in field positions
 Identifier:
-    name  string
+    name  `string`
 
 
 # e.g. LiveList<number>
@@ -103,18 +103,18 @@ ObjectLiteralType:
 ObjectTypeDefinition:
     name            TypeName
     fields          FieldDef*
-    leadingComment  string?
+    leadingComment  `string`?
 
     # True whether this type is only referenced in JSON contexts only. False
     # when this type definition is only ever referenced by a "LiveObject<>"
     # modifier. Not set in the parsing phase, and will receive its definitive
     # value in the checking phase.
-    isStatic  boolean
+    isStatic  `boolean`
 
 
 # StringLiteral:
-#     value     string
-#     rawValue  string
+#     value     `string`
+#     rawValue  `string`
 
 
 StringType:
@@ -134,12 +134,12 @@ NullType:
 
 
 StringLiteralType:
-    value  string
+    value  `string`
 
 
 NumberLiteralType:
-    value  number
+    value  `number`
 
 
 BooleanLiteralType:
-    value  boolean
+    value  `boolean`
