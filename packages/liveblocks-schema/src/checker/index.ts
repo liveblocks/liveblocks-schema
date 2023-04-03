@@ -1,15 +1,19 @@
 import type {
   ArrayType,
+  BooleanType,
   Definition,
   Document,
   FieldDef,
   Identifier,
+  LiteralType,
   LiveMapType,
   LiveType,
   NonUnionType,
+  NumberType,
   ObjectLiteralType,
   ObjectTypeDefinition,
   Range,
+  StringType,
   Type,
   TypeName,
   TypeRef,
@@ -202,6 +206,14 @@ function checkObjectLiteralType(
   }
 }
 
+function checkLiteralType(lit: LiteralType, context: Context): void {
+  if (typeof lit.value === "number") {
+    if (!Number.isInteger(lit.value)) {
+      context.report("Number literals can only be whole integers", lit.range);
+    }
+  }
+}
+
 function checkArrayType(arr: ArrayType, context: Context): void {
   ensureNoLiveStructure(arr.ofType, "inside an array", context);
 }
@@ -377,7 +389,7 @@ function getStrictTypeTag(node: NonUnionType): Tag {
       return "null";
 
     case "LiteralType":
-      return `lit:${node.value}`;
+      return `lit:${JSON.stringify(node.value)}`;
 
     case "TypeRef":
       return node.asLiveObject ? "liveobj" : "obj";
@@ -432,6 +444,23 @@ function growToIncludePipe(range: Range, context: Context): Range | undefined {
   );
 }
 
+function reportIncompatibleMembers(
+  member1: NonUnionType,
+  member2: NonUnionType,
+  context: Context
+): void {
+  const rangeToRemove = growToIncludePipe(member2.range, context);
+  context.report(
+    `Type ${quote(prettify(member2))} cannot appear in a union with ${quote(
+      prettify(member1)
+    )}`,
+    member2.range,
+    rangeToRemove !== undefined
+      ? [{ type: "remove", range: rangeToRemove }]
+      : []
+  );
+}
+
 function checkUnionType(node: UnionType, context: Context): void {
   if (node.members.length <= 1) {
     context.report("Unions must have at least 2 members", node.range);
@@ -455,75 +484,57 @@ function checkUnionType(node: UnionType, context: Context): void {
         member2.range
       );
     } else {
-      const rangeToRemove = growToIncludePipe(member2.range, context);
-      context.report(
-        `Type ${quote(prettify(member2))} cannot appear in a union with ${quote(
-          prettify(member1)
-        )}`,
-        member2.range,
-        rangeToRemove !== undefined
-          ? [{ type: "remove", range: rangeToRemove }]
-          : []
-      );
+      reportIncompatibleMembers(member1, member2, context);
     }
   }
 
-  // If we get here, we know there aren't any exact duplicates, but we can
-  // still do a more loose pass, combining all literals into their base type,
-  // and see if there are any conflicts that way
-  const membersByTag = new Map<string, NonUnionType>();
+  // If we get here, we know there aren't any exact duplicates, but there can
+  // still be incompatibilities with literals and non-literals of the same
+  // type. Let's rule these out now.
+
+  // Keep a few flags
+  let lastString: StringType | undefined; // e.g. `string`
+  let lastStringLit: LiteralType | undefined; // e.g. `"hi"`
+  let lastNumber: NumberType | undefined; // e.g. `number`
+  let lastNumberLit: LiteralType | undefined; // e.g. `42`
+  let lastBoolean: BooleanType | undefined; // e.g. `boolean`
+  let lastBooleanLit: LiteralType | undefined; // e.g. `true`
+
   for (const member of node.members) {
-    const parts = getStrictTypeTag(member).split(":")[0];
-    const tag = parts.length > 1 ? `${parts[0]}:` : parts[0];
-    membersByTag.set(tag, member);
-  }
-
-  // Error: string literals and `string` type cannot appear in the same union
-  if (membersByTag.has("str") && membersByTag.has("str:")) {
-    const str = membersByTag.get("str")!;
-    const lit = membersByTag.get("str:")!;
-    const rangeToRemove = growToIncludePipe(str.range, context);
-    context.report(
-      `Type ${quote(prettify(str))} cannot appear in a union with ${quote(
-        prettify(lit)
-      )}`,
-      str.range,
-      rangeToRemove !== undefined
-        ? [{ type: "remove", range: rangeToRemove }]
-        : []
-    );
-  }
-
-  // Error: number literals and `number` type cannot appear in the same union
-  if (membersByTag.has("num") && membersByTag.has("num:")) {
-    const num = membersByTag.get("num")!;
-    const lit = membersByTag.get("num:")!;
-    const rangeToRemove = growToIncludePipe(num.range, context);
-    context.report(
-      `Type ${quote(prettify(num))} cannot appear in a union with ${quote(
-        prettify(lit)
-      )}`,
-      num.range,
-      rangeToRemove !== undefined
-        ? [{ type: "remove", range: rangeToRemove }]
-        : []
-    );
-  }
-
-  // Error: boolean literals and `boolean` type cannot appear in the same union
-  if (membersByTag.has("bool") && membersByTag.has("bool:")) {
-    const bool = membersByTag.get("bool")!;
-    const lit = membersByTag.get("bool:")!;
-    const rangeToRemove = growToIncludePipe(bool.range, context);
-    context.report(
-      `Type ${quote(prettify(bool))} cannot appear in a union with ${quote(
-        prettify(lit)
-      )}`,
-      bool.range,
-      rangeToRemove !== undefined
-        ? [{ type: "remove", range: rangeToRemove }]
-        : []
-    );
+    if (member._kind === "StringType") {
+      lastString = member;
+      if (lastStringLit) {
+        reportIncompatibleMembers(lastStringLit, member, context);
+      }
+    } else if (member._kind === "NumberType") {
+      lastNumber = member;
+      if (lastNumberLit) {
+        reportIncompatibleMembers(lastNumberLit, member, context);
+      }
+    } else if (member._kind === "BooleanType") {
+      lastBoolean = member;
+      if (lastBooleanLit) {
+        reportIncompatibleMembers(lastBooleanLit, member, context);
+      }
+    } else if (member._kind === "LiteralType") {
+      const type = typeof member.value;
+      if (type === "string") {
+        lastStringLit = member;
+        if (lastString) {
+          reportIncompatibleMembers(lastString, member, context);
+        }
+      } else if (type === "number") {
+        lastNumberLit = member;
+        if (lastNumber) {
+          reportIncompatibleMembers(lastNumber, member, context);
+        }
+      } else if (type === "boolean") {
+        lastBooleanLit = member;
+        if (lastBoolean) {
+          reportIncompatibleMembers(lastBoolean, member, context);
+        }
+      }
+    }
   }
 }
 
@@ -830,6 +841,7 @@ export function check(
     {
       ArrayType: checkArrayType,
       Identifier: checkIdentifier,
+      LiteralType: checkLiteralType,
       LiveMapType: checkLiveMapType,
       ObjectLiteralType: checkObjectLiteralType,
       ObjectTypeDefinition: checkObjectTypeDefinition,

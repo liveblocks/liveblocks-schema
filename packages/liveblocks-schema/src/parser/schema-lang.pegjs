@@ -246,7 +246,9 @@ DoubleQuotedString
 
 
 NumberLiteralType
-  = /* -3.14159265359 */
+  = // NOTE: Parse as floating point literals (even though the checker will
+    // reject non-integers)
+    // e.g. 0, 0.5, 1337, -13, or -3.14159265359
     rawValue:$( MINUS? ( Digits? [.] )? Digits ) _
     {
       rawValue = rawValue.replace(/\s+/g, '')
