@@ -1,5 +1,6 @@
-# 0.0.13-beta1
+# 0.0.13-beta2
 
+- Add support for literal types (e.g. `"hi"`, `42`, or `true`)
 - Fix: allow mixing normal objects and LiveObjects in a union
 - Add more suggested linter actions
 
