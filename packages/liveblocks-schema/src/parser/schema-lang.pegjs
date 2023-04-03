@@ -230,10 +230,24 @@ LiteralType "literal"
 
 StringLiteralType
   = DoubleQuotedString
+  / SingleQuotedString
 
 
 DoubleQuotedString
   = rawValue:$( ["] ( ([\\].) / [^"\n{] )* ["] )
+    //                 ^^^^^    ^^^^^^^
+    //   A backslash escapes    Any character but the end of
+    //     any (.) character    string, or a newline, or the start of
+    //                          a template literal
+    {
+      const value = unescape(rawValue
+        .substring(1, rawValue.length - 1))  // strip off quotes
+      return ast.literalType(value, rng())
+    }
+
+
+SingleQuotedString
+  = rawValue:$( ['] ( ([\\].) / [^'\n{] )* ['] )
     //                 ^^^^^    ^^^^^^^
     //   A backslash escapes    Any character but the end of
     //     any (.) character    string, or a newline, or the start of

@@ -1,6 +1,12 @@
 type Storage { a: "hi" | "hi" }
                          ^^^^ Type '"hi"' cannot appear in a union with '"hi"'
 ---
+type Storage { a: "hi" | 'hi' }
+                         ^^^^ Type '"hi"' cannot appear in a union with '"hi"'
+---
+type Storage { a: 'hi' | "hi" }
+                         ^^^^ Type '"hi"' cannot appear in a union with '"hi"'
+---
 type Storage { a: 42 | 42 }
                        ^^ Type '42' cannot appear in a union with '42'
 ---
@@ -17,7 +23,7 @@ type Storage { a: 42 | number }
 type Storage { a: "hi" | string }
                          ^^^^^^ Type 'string' cannot appear in a union with '"hi"'
 ---
-type Storage { a: string | ("‘hi’" | "hey") }
+type Storage { a: string | ("‘hi’" | 'hey') }
                             ^^^^^^ Type '"‘hi’"' cannot appear in a union with 'string'
 ---
 type Storage { a: number | true | "hi" | 13.0 }

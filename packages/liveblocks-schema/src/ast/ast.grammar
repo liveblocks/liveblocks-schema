@@ -106,11 +106,6 @@ ObjectTypeDefinition:
     isStatic  `boolean`
 
 
-# StringLiteral:
-#     value     `string`
-#     rawValue  `string`
-
-
 StringType:
     # no fields
 

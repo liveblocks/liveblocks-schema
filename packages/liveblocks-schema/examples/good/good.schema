@@ -15,7 +15,7 @@ type Rect {
 }
 
 type Circle {
-  type: "circle"
+  type: 'circle'  # Single-quoted
   cx: number
   cy: number
   radius: number
@@ -24,7 +24,7 @@ type Circle {
 }
 
 type StaticCircle {
-  type: "circle"
+  type: "circle"  # Double-quoted
   cx: number
   cy: number
   radius: number
