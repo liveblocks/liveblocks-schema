@@ -28,14 +28,6 @@ export function isDefinition(node: Node): node is Definition {
   return node._kind === "ObjectTypeDefinition";
 }
 
-export function isLiteralType(node: Node): node is LiteralType {
-  return (
-    node._kind === "StringLiteralType" ||
-    node._kind === "NumberLiteralType" ||
-    node._kind === "BooleanLiteralType"
-  );
-}
-
 export function isLiveType(node: Node): node is LiveType {
   return node._kind === "LiveMapType" || node._kind === "LiveListType";
 }
@@ -56,7 +48,7 @@ export function isScalarType(node: Node): node is ScalarType {
     node._kind === "NumberType" ||
     node._kind === "BooleanType" ||
     node._kind === "NullType" ||
-    isLiteralType(node)
+    node._kind === "LiteralType"
   );
 }
 
@@ -65,11 +57,6 @@ export function isType(node: Node): node is Type {
 }
 
 export type Definition = ObjectTypeDefinition;
-
-export type LiteralType =
-  | StringLiteralType
-  | NumberLiteralType
-  | BooleanLiteralType;
 
 export type LiveType = LiveMapType | LiveListType;
 
@@ -93,19 +80,17 @@ export type Range = [number, number];
 
 export type Node =
   | ArrayType
-  | BooleanLiteralType
   | BooleanType
   | Document
   | FieldDef
   | Identifier
+  | LiteralType
   | LiveListType
   | LiveMapType
   | NullType
-  | NumberLiteralType
   | NumberType
   | ObjectLiteralType
   | ObjectTypeDefinition
-  | StringLiteralType
   | StringType
   | TypeName
   | TypeRef
@@ -123,19 +108,17 @@ export function isRange(thing: unknown): thing is Range {
 export function isNode(node: Node): node is Node {
   return (
     node._kind === "ArrayType" ||
-    node._kind === "BooleanLiteralType" ||
     node._kind === "BooleanType" ||
     node._kind === "Document" ||
     node._kind === "FieldDef" ||
     node._kind === "Identifier" ||
+    node._kind === "LiteralType" ||
     node._kind === "LiveListType" ||
     node._kind === "LiveMapType" ||
     node._kind === "NullType" ||
-    node._kind === "NumberLiteralType" ||
     node._kind === "NumberType" ||
     node._kind === "ObjectLiteralType" ||
     node._kind === "ObjectTypeDefinition" ||
-    node._kind === "StringLiteralType" ||
     node._kind === "StringType" ||
     node._kind === "TypeName" ||
     node._kind === "TypeRef" ||
@@ -146,12 +129,6 @@ export function isNode(node: Node): node is Node {
 export type ArrayType = {
   _kind: "ArrayType";
   ofType: Type;
-  range: Range;
-};
-
-export type BooleanLiteralType = {
-  _kind: "BooleanLiteralType";
-  value: boolean;
   range: Range;
 };
 
@@ -183,6 +160,12 @@ export type Identifier = {
   range: Range;
 };
 
+export type LiteralType = {
+  _kind: "LiteralType";
+  value: string | number | boolean;
+  range: Range;
+};
+
 export type LiveListType = {
   _kind: "LiveListType";
   ofType: Type;
@@ -199,12 +182,6 @@ export type LiveMapType = {
 export type NullType = {
   _kind: "NullType";
 
-  range: Range;
-};
-
-export type NumberLiteralType = {
-  _kind: "NumberLiteralType";
-  value: number;
   range: Range;
 };
 
@@ -226,12 +203,6 @@ export type ObjectTypeDefinition = {
   fields: FieldDef[];
   leadingComment: string | null;
   isStatic: boolean;
-  range: Range;
-};
-
-export type StringLiteralType = {
-  _kind: "StringLiteralType";
-  value: string;
   range: Range;
 };
 
@@ -274,27 +245,6 @@ export function arrayType(ofType: Type, range: Range = [0, 0]): ArrayType {
   return {
     _kind: "ArrayType",
     ofType,
-    range,
-  };
-}
-
-export function booleanLiteralType(
-  value: boolean,
-  range: Range = [0, 0]
-): BooleanLiteralType {
-  DEBUG &&
-    (() => {
-      assert(
-        typeof value === "boolean",
-        `Invalid value for "value" arg in "BooleanLiteralType" call.\nExpected: boolean\nGot:      ${JSON.stringify(
-          value
-        )}`
-      );
-      assertRange(range, "BooleanLiteralType");
-    })();
-  return {
-    _kind: "BooleanLiteralType",
-    value,
     range,
   };
 }
@@ -404,6 +354,29 @@ export function identifier(name: string, range: Range = [0, 0]): Identifier {
   };
 }
 
+export function literalType(
+  value: string | number | boolean,
+  range: Range = [0, 0]
+): LiteralType {
+  DEBUG &&
+    (() => {
+      assert(
+        typeof value === "string" ||
+          typeof value === "number" ||
+          typeof value === "boolean",
+        `Invalid value for "value" arg in "LiteralType" call.\nExpected: string | number | boolean\nGot:      ${JSON.stringify(
+          value
+        )}`
+      );
+      assertRange(range, "LiteralType");
+    })();
+  return {
+    _kind: "LiteralType",
+    value,
+    range,
+  };
+}
+
 export function liveListType(
   ofType: Type,
   range: Range = [0, 0]
@@ -461,27 +434,6 @@ export function nullType(range: Range = [0, 0]): NullType {
     })();
   return {
     _kind: "NullType",
-    range,
-  };
-}
-
-export function numberLiteralType(
-  value: number,
-  range: Range = [0, 0]
-): NumberLiteralType {
-  DEBUG &&
-    (() => {
-      assert(
-        typeof value === "number",
-        `Invalid value for "value" arg in "NumberLiteralType" call.\nExpected: number\nGot:      ${JSON.stringify(
-          value
-        )}`
-      );
-      assertRange(range, "NumberLiteralType");
-    })();
-  return {
-    _kind: "NumberLiteralType",
-    value,
     range,
   };
 }
@@ -561,27 +513,6 @@ export function objectTypeDefinition(
     fields,
     leadingComment,
     isStatic,
-    range,
-  };
-}
-
-export function stringLiteralType(
-  value: string,
-  range: Range = [0, 0]
-): StringLiteralType {
-  DEBUG &&
-    (() => {
-      assert(
-        typeof value === "string",
-        `Invalid value for "value" arg in "StringLiteralType" call.\nExpected: string\nGot:      ${JSON.stringify(
-          value
-        )}`
-      );
-      assertRange(range, "StringLiteralType");
-    })();
-  return {
-    _kind: "StringLiteralType",
-    value,
     range,
   };
 }
@@ -669,19 +600,17 @@ export function unionType(
 
 interface Visitor<TContext> {
   ArrayType?(node: ArrayType, context: TContext): void;
-  BooleanLiteralType?(node: BooleanLiteralType, context: TContext): void;
   BooleanType?(node: BooleanType, context: TContext): void;
   Document?(node: Document, context: TContext): void;
   FieldDef?(node: FieldDef, context: TContext): void;
   Identifier?(node: Identifier, context: TContext): void;
+  LiteralType?(node: LiteralType, context: TContext): void;
   LiveListType?(node: LiveListType, context: TContext): void;
   LiveMapType?(node: LiveMapType, context: TContext): void;
   NullType?(node: NullType, context: TContext): void;
-  NumberLiteralType?(node: NumberLiteralType, context: TContext): void;
   NumberType?(node: NumberType, context: TContext): void;
   ObjectLiteralType?(node: ObjectLiteralType, context: TContext): void;
   ObjectTypeDefinition?(node: ObjectTypeDefinition, context: TContext): void;
-  StringLiteralType?(node: StringLiteralType, context: TContext): void;
   StringType?(node: StringType, context: TContext): void;
   TypeName?(node: TypeName, context: TContext): void;
   TypeRef?(node: TypeRef, context: TContext): void;
@@ -708,10 +637,6 @@ export function visit<TNode extends Node, TContext>(
       visit(node.ofType, visitor, context);
       break;
 
-    case "BooleanLiteralType":
-      visitor.BooleanLiteralType?.(node, context);
-      break;
-
     case "BooleanType":
       visitor.BooleanType?.(node, context);
       break;
@@ -731,6 +656,10 @@ export function visit<TNode extends Node, TContext>(
       visitor.Identifier?.(node, context);
       break;
 
+    case "LiteralType":
+      visitor.LiteralType?.(node, context);
+      break;
+
     case "LiveListType":
       visitor.LiveListType?.(node, context);
       visit(node.ofType, visitor, context);
@@ -746,10 +675,6 @@ export function visit<TNode extends Node, TContext>(
       visitor.NullType?.(node, context);
       break;
 
-    case "NumberLiteralType":
-      visitor.NumberLiteralType?.(node, context);
-      break;
-
     case "NumberType":
       visitor.NumberType?.(node, context);
       break;
@@ -763,10 +688,6 @@ export function visit<TNode extends Node, TContext>(
       visitor.ObjectTypeDefinition?.(node, context);
       visit(node.name, visitor, context);
       node.fields.forEach((f) => visit(f, visitor, context));
-      break;
-
-    case "StringLiteralType":
-      visitor.StringLiteralType?.(node, context);
       break;
 
     case "StringType":

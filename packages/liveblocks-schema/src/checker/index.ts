@@ -1,6 +1,5 @@
 import type {
   ArrayType,
-  BooleanLiteralType,
   Definition,
   Document,
   FieldDef,
@@ -8,11 +7,9 @@ import type {
   LiveMapType,
   LiveType,
   NonUnionType,
-  NumberLiteralType,
   ObjectLiteralType,
   ObjectTypeDefinition,
   Range,
-  StringLiteralType,
   Type,
   TypeName,
   TypeRef,
@@ -323,9 +320,7 @@ type Tag =
   | "livelist"
   | "liveobj"
   | "null"
-  | `str:${string}`
-  | `num:${number}`
-  | `bool:${boolean}`;
+  | `lit:${string | number | boolean}`;
 
 /**
  * Returns a string which acts as a "type tag": a high-level indicator that
@@ -381,14 +376,8 @@ function getStrictTypeTag(node: NonUnionType): Tag {
     case "NullType":
       return "null";
 
-    case "StringLiteralType":
-      return `str:${node.value}`;
-
-    case "NumberLiteralType":
-      return `num:${node.value}`;
-
-    case "BooleanLiteralType":
-      return `bool:${node.value}`;
+    case "LiteralType":
+      return `lit:${node.value}`;
 
     case "TypeRef":
       return node.asLiveObject ? "liveobj" : "obj";

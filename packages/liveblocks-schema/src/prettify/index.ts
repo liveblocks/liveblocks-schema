@@ -33,9 +33,7 @@ export function prettify(node: Node): string {
     case "NullType":
       return "null";
 
-    case "StringLiteralType":
-    case "NumberLiteralType":
-    case "BooleanLiteralType":
+    case "LiteralType":
       return JSON.stringify(node.value);
 
     case "ObjectTypeDefinition":

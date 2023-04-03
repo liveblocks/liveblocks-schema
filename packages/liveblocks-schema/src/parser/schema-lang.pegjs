@@ -241,7 +241,7 @@ DoubleQuotedString
     {
       const value = unescape(rawValue
         .substring(1, rawValue.length - 1))  // strip off quotes
-      return ast.stringLiteralType(value, rng())
+      return ast.literalType(value, rng())
     }
 
 
@@ -251,13 +251,13 @@ NumberLiteralType
     {
       rawValue = rawValue.replace(/\s+/g, '')
       const value = parseFloat(rawValue)
-      return ast.numberLiteralType(value, rng())
+      return ast.literalType(value, rng())
     }
 
 
 BooleanLiteralType
-  = TRUE { return ast.booleanLiteralType(true, rng()) }
-  / FALSE { return ast.booleanLiteralType(false, rng()) }
+  = TRUE { return ast.literalType(true, rng()) }
+  / FALSE { return ast.literalType(false, rng()) }
 
 
 // e.g. LiveMap<> or LiveList<>
